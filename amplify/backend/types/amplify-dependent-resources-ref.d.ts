@@ -10,17 +10,9 @@ export type AmplifyDependentResourcesAttributes = {
     "opticaapi": {
       "AppClientID": "string",
       "AppClientIDWeb": "string",
-      "IdentityPoolId": "string",
-      "IdentityPoolName": "string",
       "UserPoolArn": "string",
       "UserPoolId": "string",
       "UserPoolName": "string"
-    },
-    "userPoolGroups": {
-      "clienteGroupRole": "string",
-      "gerenteGroupRole": "string",
-      "superadminGroupRole": "string",
-      "vendedorGroupRole": "string"
     }
   },
   "function": {

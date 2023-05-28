@@ -1,8 +1,6 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "opticaapi_identitypool_e0c1481c",
-    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "opticafac65a0a",
     "userPoolName": "opticafac65a0a_userpool_fac65a0a",
     "autoVerifiedAttributes": [
@@ -17,7 +15,7 @@
     "emailVerificationSubject": "Código de verificación",
     "emailVerificationMessage": "Tu código de verificación es: {####}",
     "defaultPasswordPolicy": true,
-    "passwordPolicyMinLength": "88",
+    "passwordPolicyMinLength": "8",
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
       "email"
@@ -35,9 +33,9 @@
     "userpoolClientSetAttributes": false,
     "sharedId": "fac65a0a",
     "resourceName": "opticaapi",
-    "authSelections": "identityPoolAndUserPool",
+    "authSelections": "userPoolOnly",
     "useDefault": "manual",
-    "userPoolGroups": true,
+    "userPoolGroups": false,
     "adminQueries": false,
     "triggers": {
       "PostConfirmation": [
@@ -79,10 +77,12 @@
       }
     ],
     "permissions": [
-      "{\"policyName\":\"AddToGroupCognito\",\"trigger\":\"PostConfirmation\",\"effect\":\"Allow\",\"actions\":[\"cognito-idp:AdminAddUserToGroup\",\"cognito-idp:GetGroup\",\"cognito-idp:CreateGroup\"],\"resource\":{\"paramType\":\"!GetAtt\",\"keys\":[\"UserPool\",\"Arn\"]}}"
+      "{\n  \"policyName\": \"AddToGroupCognito\",\n  \"trigger\": \"PostConfirmation\",\n  \"effect\": \"Allow\",\n  \"actions\": [\n    \"cognito-idp:AdminAddUserToGroup\",\n    \"cognito-idp:GetGroup\",\n    \"cognito-idp:CreateGroup\"\n  ],\n  \"resource\": {\n    \"paramType\": \"!GetAtt\",\n    \"keys\": [\n      \"UserPool\",\n      \"Arn\"\n    ]\n  }\n}"
     ],
-    "authTriggerConnections": [
-      "{\"triggerType\":\"PostConfirmation\",\"lambdaFunctionName\":\"opticaapiPostConfirmation\"}"
-    ]
+    "authTriggerConnections": "[\n  {\n    \"triggerType\": \"PostConfirmation\",\n    \"lambdaFunctionName\": \"opticaapiPostConfirmation\"\n  }\n]",
+    "authProviders": [],
+    "parentStack": {
+      "Ref": "AWS::StackId"
+    }
   }
 }

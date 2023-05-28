@@ -55,7 +55,7 @@
         ],
         "passwordProtectionSettings": {
           "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": "88"
+          "passwordPolicyMinLength": "8"
         },
         "signupAttributes": [
           "EMAIL"
@@ -75,8 +75,7 @@
           "attributes": [
             "UserPoolId",
             "AppClientIDWeb",
-            "AppClientID",
-            "IdentityPoolId"
+            "AppClientID"
           ],
           "category": "auth",
           "resourceName": "opticaapi"
