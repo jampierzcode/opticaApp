@@ -1,0 +1,114 @@
+enum ORDENSTATUS {
+  CREADA
+  ENVIADAMAQUILA
+  ENTREGADA
+  CONPROBLEMAS
+  FINALIZADA
+}
+
+type INVENTARIOORDENITEMS @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  cantidad: Int
+  costo: Float
+  inventarioID: ID! @index(name: "byINVENTARIO")
+  ordenID: ID! @index(name: "byORDEN")
+}
+
+enum TIPOORDEN {
+  COTIZACION
+  ORDEN
+}
+
+type GERENTE @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombres: String!
+  userName: String!
+  email: String
+  phoneNumber: String
+  confirmed: Boolean
+  blocked: Boolean
+  createdBy: String!
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+type VENDEDORES @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombres: String
+  apellidoPaterno: String
+  apellidoMaterno: String
+  whats: String
+  email: String
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+enum ENUMCATEGORIA {
+  DAMA
+  CABALLERO
+  BOY
+}
+
+type INVENTARIO @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombreProducto: String
+  proveedor: String
+  costo: Float!
+  precioVenta: Float!
+  color: String
+  tipoEstructura: String
+  urlImagen: String
+  tipoMaterial: String
+  categoria: ENUMCATEGORIA!
+  INVENTARIOORDENITEMS: [INVENTARIOORDENITEMS]
+    @hasMany(indexName: "byINVENTARIO", fields: ["id"])
+  opticaID: ID! @index(name: "byOPTICA")
+  stock: String
+}
+
+type ORDEN @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  opticaID: ID! @index(name: "byOPTICA")
+  tipoOrden: TIPOORDEN
+  clientesID: ID! @index(name: "byCLIENTES")
+  usadoLentes: String
+  fechaOrden: String
+  horaOrden: String
+  precioTotal: String
+  referencia: String
+  fechaEntrega: String
+  seRealizoExamen: String
+  graduacionDerechaVieja: String
+  graduacionIzquierdaVieja: String
+  graduacionDerechaNueva: String
+  graduacionIzquierdaNueva: String
+  fechaExamen: String
+  INVENTARIOORDENITEMS: [INVENTARIOORDENITEMS]
+    @hasMany(indexName: "byORDEN", fields: ["id"])
+  ordenStatus: ORDENSTATUS
+  precioGraduacion: String
+  anticipo: String
+}
+
+type CLIENTES @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombres: String
+  apellidoPaterno: String
+  apellidoMaterno: String
+  fechaNacimiento: String
+  edad: String
+  whats: String
+  sexo: String
+  email: String
+  opticaID: ID! @index(name: "byOPTICA")
+  ORDENS: [ORDEN] @hasMany(indexName: "byCLIENTES", fields: ["id"])
+}
+
+type OPTICA @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombre: String!
+  createdBy: String!
+  VENDEDORES: [VENDEDORES] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  GERENTES: [GERENTE] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  ORDENS: [ORDEN] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  CLIENTES: [CLIENTES] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  INVENTARIOS: [INVENTARIO] @hasMany(indexName: "byOPTICA", fields: ["id"])
+}

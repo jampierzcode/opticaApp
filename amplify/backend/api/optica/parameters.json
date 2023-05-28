@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "optica",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authopticaapi",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

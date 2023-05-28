@@ -1,0 +1,18 @@
+[
+  {
+    "groupName": "superadmin",
+    "precedence": 1
+  },
+  {
+    "groupName": "gerente",
+    "precedence": 2
+  },
+  {
+    "groupName": "vendedor",
+    "precedence": 3
+  },
+  {
+    "groupName": "cliente",
+    "precedence": 4
+  }
+]

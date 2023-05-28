@@ -1,0 +1,15 @@
+{
+  "resourceName": "opticaImages",
+  "policyUUID": "a7f6d36b",
+  "bucketName": "opticaimages",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE"
+}
