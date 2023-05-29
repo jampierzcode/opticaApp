@@ -1,7 +1,7 @@
 {
-  "resourceName": "opticaImages",
-  "policyUUID": "a7f6d36b",
-  "bucketName": "opticaimages",
+  "resourceName": "imagesoptica",
+  "policyUUID": "78387772",
+  "bucketName": "opticaapp262c3e91f8352464dbde9108087eb4c7f",
   "storageAccess": "authAndGuest",
   "guestAccess": [
     "READ"

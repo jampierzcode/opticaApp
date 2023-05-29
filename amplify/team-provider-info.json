@@ -1,34 +1,24 @@
 {
-  "dev": {
+  "main": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-optica-dev-191223-authRole",
-      "UnauthRoleArn": "arn:aws:iam::177714169949:role/amplify-optica-dev-191223-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::177714169949:role/amplify-optica-dev-191223-authRole",
-      "Region": "eu-west-2",
-      "DeploymentBucketName": "amplify-optica-dev-191223-deployment",
-      "UnauthRoleName": "amplify-optica-dev-191223-unauthRole",
-      "StackName": "amplify-optica-dev-191223",
-      "StackId": "arn:aws:cloudformation:eu-west-2:177714169949:stack/amplify-optica-dev-191223/93cc13a0-fd8b-11ed-975f-0a80cfdb9e18",
-      "AmplifyAppId": "dqbyfhg15u3r4",
-      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-optica-dev-191223-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
+      "AuthRoleName": "amplify-opticaapp2-main-13409-authRole",
+      "UnauthRoleArn": "arn:aws:iam::177714169949:role/amplify-opticaapp2-main-13409-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::177714169949:role/amplify-opticaapp2-main-13409-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-opticaapp2-main-13409-deployment",
+      "UnauthRoleName": "amplify-opticaapp2-main-13409-unauthRole",
+      "StackName": "amplify-opticaapp2-main-13409",
+      "StackId": "arn:aws:cloudformation:us-east-1:177714169949:stack/amplify-opticaapp2-main-13409/e8fbaef0-fdc0-11ed-88dc-0e2716371563",
+      "AmplifyAppId": "dssfwu2fjc1f2"
     },
     "categories": {
       "auth": {
-        "opticaapi": {},
-        "userPoolGroups": {}
+        "opticafilmoraapi": {}
       },
       "function": {
-        "opticaapiPostConfirmation": {
-          "GROUP": "",
-          "deploymentBucketName": "amplify-optica-dev-191223-deployment",
-          "s3Key": "amplify-builds/opticaapiPostConfirmation-6145322b7a6a59764864-build.zip"
+        "opticafilmoraapiPostConfirmation": {
+          "GROUP": ""
         }
-      },
-      "api": {
-        "optica": {}
-      },
-      "storage": {
-        "opticaImages": {}
       }
     }
   }

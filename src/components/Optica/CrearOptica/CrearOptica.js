@@ -1,11 +1,11 @@
 import React, { useState, useContext } from "react";
 import { Button, Form, Input, message } from "antd";
 
-import { DataStore } from "aws-amplify";
+import { API, graphqlOperation } from "aws-amplify";
 
 import { useAuthContext } from "../../../contexts/AuthContext";
-import { OPTICA } from "../../../models";
 import { MenuContext } from "../../../contexts/MenuContext";
+import { createOPTICA } from "../../../graphql/mutations";
 function CrearOptica() {
   const { cambiarComponent } = useContext(MenuContext);
   const authContext = useAuthContext();
@@ -14,11 +14,12 @@ function CrearOptica() {
   const onFinish = async () => {
     if (nombreOptica !== "") {
       try {
-        const result = await DataStore.save(
-          new OPTICA({
-            nombre: nombreOptica,
-            createdBy: authContext?.authEmail,
-          })
+        const newOptica = {
+          nombre: nombreOptica,
+          createdBy: authContext?.authEmail,
+        };
+        const result = await API.graphql(
+          graphqlOperation(createOPTICA, { input: newOptica })
         );
         console.log(result);
         message.success("La optica se ha creado correctamente");

@@ -15,14 +15,14 @@ import {
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { API, DataStore, graphqlOperation } from "aws-amplify";
 // import { useNavigate } from "react-router-dom";
-import { INVENTARIO, OPTICA } from "../../../models";
+import { OPTICA } from "../../../models";
 import {
   iNVENTARIOSByOpticaID,
   listINVENTARIOS,
 } from "../../../graphql/queries";
 
 import { useGerenteContext } from "../../../contexts/GerenteContext";
-import { deleteINVENTARIO } from "../../../graphql/mutations";
+import { deleteINVENTARIO, updateINVENTARIO } from "../../../graphql/mutations";
 import LaboratorioSelector from "../../RoleBased/LaboratorioSelector";
 import { useAuthContext } from "../../../contexts/AuthContext";
 
@@ -263,23 +263,19 @@ function ListaInventario() {
 
   const onFinish = async () => {
     try {
-      const original = await DataStore.query(INVENTARIO, id);
-      console.log(original);
-
-      await DataStore.save(
-        INVENTARIO.copyOf(original, (updated) => {
-          updated.categoria = categoria;
-          updated.proveedor = proveedor;
-          updated.costo = costo;
-          updated.precioVenta = precioVenta;
-          updated.nombreProducto = nombreProducto;
-          updated.color = color;
-          updated.tipoEstructura = tipoEstructura;
-          updated.urlImagen = urlImagen;
-          updated.tipoMaterial = tipoMaterial;
-          updated.opticaID = opticaID;
-        })
-      );
+      const prod = {
+        categoria,
+        proveedor,
+        costo,
+        precioVenta,
+        nombreProducto,
+        color,
+        tipoEstructura,
+        urlImagen,
+        tipoMaterial,
+        opticaID,
+      };
+      await API.graphql(graphqlOperation(updateINVENTARIO, { input: prod }));
       fetchInventario();
       setIsEditing(false);
       message.success("El producto se ha actualizado correctamente");

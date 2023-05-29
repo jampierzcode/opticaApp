@@ -1,11 +1,14 @@
 import { React, useState, useEffect } from "react";
-import { Layout, Popconfirm, Form, Input, Table, Modal, message } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Layout, Form, Input, Table, Modal, message } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+// import { DeleteOutlined } from "@ant-design/icons";
 
-import { DataStore } from "aws-amplify";
-import { OPTICA } from "../../../models";
+import { API, graphqlOperation } from "aws-amplify";
+import { listOPTICAS } from "../../../graphql/queries";
+import { updateOPTICA } from "../../../graphql/mutations";
 const { Content } = Layout;
 function ListaOptica() {
+  const [version, setVersion] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [id, setId] = useState("");
   const [nombreOptica, setNombreOptica] = useState("");
@@ -13,9 +16,15 @@ function ListaOptica() {
   const [opticas, setOpticas] = useState([]);
   const fecthOptica = async () => {
     try {
-      const result = await DataStore.query(OPTICA);
-      setOpticas(result);
-    } catch (error) {}
+      // const result = await DataStore.query(OPTICA);
+      const result = await API.graphql(graphqlOperation(listOPTICAS));
+      const opticasList = result?.data?.listOPTICAS?.items;
+      console.log(result);
+
+      setOpticas(opticasList);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -24,41 +33,45 @@ function ListaOptica() {
   const edithandle = (record) => {
     setId(record?.id);
     setNombreOptica(record?.nombre);
+    setVersion(record?._version);
     setIsEditing(true);
   };
   const onFinish = async () => {
     try {
-      const original = await DataStore.query(OPTICA, id);
-
-      await DataStore.save(
-        OPTICA.copyOf(original, (updated) => {
-          updated.nombre = nombreOptica;
-        })
-      );
+      const prod = {
+        id: id,
+        _version: version,
+        nombre: nombreOptica,
+      };
+      await API.graphql(graphqlOperation(updateOPTICA, { input: prod }));
       fecthOptica();
       setIsEditing(false);
-      console.log("se actualizo");
       message.success("La optica se ha actualizado correctamente");
     } catch (error) {
       message.error("Hubo un error contacta al administrador");
     }
   };
 
-  const changeDelete = (record) => {
-    setId(record?.id);
-  };
-  const deletehandle = async () => {
-    console.log(id);
+  // const changeDelete = (record) => {
+  //   setId(record?.id);
+  // };
+  // const deletehandle = async () => {
+  //   console.log(id);
 
-    try {
-      await DataStore.delete(OPTICA, id);
-      fecthOptica();
-      message.success("La optica se ha eliminado correctamente");
-    } catch (error) {
-      console.log(error);
-      message.error("Hubo un error contacta al administrador");
-    }
-  };
+  //   try {
+  //     const prod = {
+  //       id: id,
+  //       _version: version,
+  //     };
+  //     await DataStore.delete(OPTICA, id);
+  //     await API.graphql(graphqlOperation(deleteOPTICA, { input: prod }));
+  //     fecthOptica();
+  //     message.success("La optica se ha eliminado correctamente");
+  //   } catch (error) {
+  //     console.log(error);
+  //     message.error("Hubo un error contacta al administrador");
+  //   }
+  // };
   const columns = [
     {
       title: "Nombre Optica",
@@ -83,7 +96,7 @@ function ListaOptica() {
                 edithandle(record);
               }}
             />
-            <Popconfirm
+            {/* <Popconfirm
               title="Eliminar Lente"
               description="¿Esta seguro de eliminar el lente?"
               onConfirm={() => deletehandle()}
@@ -94,7 +107,7 @@ function ListaOptica() {
                 onClick={() => changeDelete(record)}
                 style={{ color: "red", marginLeft: "15px" }}
               />{" "}
-            </Popconfirm>
+            </Popconfirm> */}
           </>
         );
       },

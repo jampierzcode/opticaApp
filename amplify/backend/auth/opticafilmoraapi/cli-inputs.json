@@ -1,8 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "resourceNameTruncated": "opticafac65a0a",
-    "userPoolName": "opticafac65a0a_userpool_fac65a0a",
+    "identityPoolName": "opticafilmoraapi_identitypool_8a6ed2d0",
+    "allowUnauthenticatedIdentities": true,
+    "resourceNameTruncated": "optica739c9d37",
+    "userPoolName": "opticaapp2739c9d37_userpool_739c9d37",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -13,29 +15,29 @@
     "smsAuthenticationMessage": "Your authentication code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
     "emailVerificationSubject": "Código de verificación",
-    "emailVerificationMessage": "Tu código de verificación es: {####}",
+    "emailVerificationMessage": "Tu código es: {####}",
     "defaultPasswordPolicy": true,
-    "passwordPolicyMinLength": "8",
+    "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
       "email"
     ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
-    "userpoolClientRefreshTokenValidity": "30",
+    "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
       "email"
     ],
     "userpoolClientReadAttributes": [
       "email"
     ],
-    "userpoolClientLambdaRole": "opticafac65a0a_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "optica739c9d37_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "fac65a0a",
-    "resourceName": "opticaapi",
-    "authSelections": "userPoolOnly",
+    "sharedId": "739c9d37",
+    "resourceName": "opticafilmoraapi",
+    "authSelections": "identityPoolAndUserPool",
     "useDefault": "manual",
-    "userPoolGroups": false,
+    "userPoolGroups": true,
     "adminQueries": false,
     "triggers": {
       "PostConfirmation": [
@@ -46,8 +48,7 @@
     "userPoolGroupList": [
       "superadmin",
       "gerente",
-      "vendedor",
-      "cliente"
+      "vendedor"
     ],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
@@ -68,7 +69,7 @@
     "dependsOn": [
       {
         "category": "function",
-        "resourceName": "opticaapiPostConfirmation",
+        "resourceName": "opticafilmoraapiPostConfirmation",
         "triggerProvider": "Cognito",
         "attributes": [
           "Arn",
@@ -77,12 +78,10 @@
       }
     ],
     "permissions": [
-      "{\n  \"policyName\": \"AddToGroupCognito\",\n  \"trigger\": \"PostConfirmation\",\n  \"effect\": \"Allow\",\n  \"actions\": [\n    \"cognito-idp:AdminAddUserToGroup\",\n    \"cognito-idp:GetGroup\",\n    \"cognito-idp:CreateGroup\"\n  ],\n  \"resource\": {\n    \"paramType\": \"!GetAtt\",\n    \"keys\": [\n      \"UserPool\",\n      \"Arn\"\n    ]\n  }\n}"
+      "{\"policyName\":\"AddToGroupCognito\",\"trigger\":\"PostConfirmation\",\"effect\":\"Allow\",\"actions\":[\"cognito-idp:AdminAddUserToGroup\",\"cognito-idp:GetGroup\",\"cognito-idp:CreateGroup\"],\"resource\":{\"paramType\":\"!GetAtt\",\"keys\":[\"UserPool\",\"Arn\"]}}"
     ],
-    "authTriggerConnections": "[\n  {\n    \"triggerType\": \"PostConfirmation\",\n    \"lambdaFunctionName\": \"opticaapiPostConfirmation\"\n  }\n]",
-    "authProviders": [],
-    "parentStack": {
-      "Ref": "AWS::StackId"
-    }
+    "authTriggerConnections": [
+      "{\"triggerType\":\"PostConfirmation\",\"lambdaFunctionName\":\"opticafilmoraapiPostConfirmation\"}"
+    ]
   }
 }
