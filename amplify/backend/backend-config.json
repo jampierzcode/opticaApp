@@ -1,23 +1,17 @@
 {
   "api": {
     "opticaapp2": {
-      "dependsOn": [
-        {
-          "attributes": [
-            "UserPoolId"
-          ],
-          "category": "auth",
-          "resourceName": "opticafilmoraapi"
-        }
-      ],
+      "dependsOn": [],
       "output": {
         "authConfig": {
           "additionalAuthenticationProviders": [],
           "defaultAuthentication": {
-            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
-            "userPoolConfig": {
-              "userPoolId": "authopticafilmoraapi"
-            }
+            "apiKeyConfig": {
+              "apiKeyExpirationDate": "2024-05-28T12:01:55.044Z",
+              "apiKeyExpirationDays": 365,
+              "description": "api new"
+            },
+            "authenticationType": "API_KEY"
           }
         }
       },
@@ -92,11 +86,56 @@
           "resourceName": "opticafilmoraapiPostConfirmation"
         }
       ]
+    },
+    "AMPLIFY_function_opticafilmoraapiPostConfirmation_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "opticafilmoraapiPostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_opticafilmoraapiPostConfirmation_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "opticafilmoraapiPostConfirmation"
+        }
+      ]
     }
   },
   "storage": {
     "imagesoptica": {
-      "dependsOn": [],
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "opticafilmoraapi"
+        },
+        {
+          "attributes": [
+            "superadminGroupRole"
+          ],
+          "category": "auth",
+          "resourceName": "userPoolGroups"
+        },
+        {
+          "attributes": [
+            "gerenteGroupRole"
+          ],
+          "category": "auth",
+          "resourceName": "userPoolGroups"
+        },
+        {
+          "attributes": [
+            "vendedorGroupRole"
+          ],
+          "category": "auth",
+          "resourceName": "userPoolGroups"
+        }
+      ],
       "providerPlugin": "awscloudformation",
       "service": "S3"
     }

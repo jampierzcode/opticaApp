@@ -75,70 +75,6 @@ export const syncINVENTARIOORDENITEMS = /* GraphQL */ `
     }
   }
 `;
-export const iNVENTARIOORDENITEMSByInventarioID = /* GraphQL */ `
-  query INVENTARIOORDENITEMSByInventarioID(
-    $inventarioID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelINVENTARIOORDENITEMSFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    iNVENTARIOORDENITEMSByInventarioID(
-      inventarioID: $inventarioID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        cantidad
-        costo
-        inventarioID
-        ordenID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const iNVENTARIOORDENITEMSByOrdenID = /* GraphQL */ `
-  query INVENTARIOORDENITEMSByOrdenID(
-    $ordenID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelINVENTARIOORDENITEMSFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    iNVENTARIOORDENITEMSByOrdenID(
-      ordenID: $ordenID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        cantidad
-        costo
-        inventarioID
-        ordenID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getGERENTE = /* GraphQL */ `
   query GetGERENTE($id: ID!) {
     getGERENTE(id: $id) {
@@ -221,42 +157,6 @@ export const syncGERENTES = /* GraphQL */ `
     }
   }
 `;
-export const gERENTESByOpticaID = /* GraphQL */ `
-  query GERENTESByOpticaID(
-    $opticaID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelGERENTEFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    gERENTESByOpticaID(
-      opticaID: $opticaID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        nombres
-        userName
-        email
-        phoneNumber
-        confirmed
-        blocked
-        createdBy
-        opticaID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getVENDEDORES = /* GraphQL */ `
   query GetVENDEDORES($id: ID!) {
     getVENDEDORES(id: $id) {
@@ -313,40 +213,6 @@ export const syncVENDEDORES = /* GraphQL */ `
       limit: $limit
       nextToken: $nextToken
       lastSync: $lastSync
-    ) {
-      items {
-        id
-        nombres
-        apellidoPaterno
-        apellidoMaterno
-        whats
-        email
-        opticaID
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const vENDEDORESByOpticaID = /* GraphQL */ `
-  query VENDEDORESByOpticaID(
-    $opticaID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelVENDEDORESFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    vENDEDORESByOpticaID(
-      opticaID: $opticaID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
     ) {
       items {
         id
@@ -453,49 +319,6 @@ export const syncINVENTARIOS = /* GraphQL */ `
       limit: $limit
       nextToken: $nextToken
       lastSync: $lastSync
-    ) {
-      items {
-        id
-        nombreProducto
-        proveedor
-        costo
-        precioVenta
-        color
-        tipoEstructura
-        urlImagen
-        tipoMaterial
-        categoria
-        INVENTARIOORDENITEMS {
-          nextToken
-          startedAt
-        }
-        opticaID
-        stock
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const iNVENTARIOSByOpticaID = /* GraphQL */ `
-  query INVENTARIOSByOpticaID(
-    $opticaID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelINVENTARIOFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    iNVENTARIOSByOpticaID(
-      opticaID: $opticaID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
     ) {
       items {
         id
@@ -661,106 +484,6 @@ export const syncORDENS = /* GraphQL */ `
     }
   }
 `;
-export const oRDENSByOpticaID = /* GraphQL */ `
-  query ORDENSByOpticaID(
-    $opticaID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelORDENFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    oRDENSByOpticaID(
-      opticaID: $opticaID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        opticaID
-        tipoOrden
-        clientesID
-        usadoLentes
-        fechaOrden
-        horaOrden
-        precioTotal
-        referencia
-        fechaEntrega
-        seRealizoExamen
-        graduacionDerechaVieja
-        graduacionIzquierdaVieja
-        graduacionDerechaNueva
-        graduacionIzquierdaNueva
-        fechaExamen
-        INVENTARIOORDENITEMS {
-          nextToken
-          startedAt
-        }
-        ordenStatus
-        precioGraduacion
-        anticipo
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const oRDENSByClientesID = /* GraphQL */ `
-  query ORDENSByClientesID(
-    $clientesID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelORDENFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    oRDENSByClientesID(
-      clientesID: $clientesID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        opticaID
-        tipoOrden
-        clientesID
-        usadoLentes
-        fechaOrden
-        horaOrden
-        precioTotal
-        referencia
-        fechaEntrega
-        seRealizoExamen
-        graduacionDerechaVieja
-        graduacionIzquierdaVieja
-        graduacionDerechaNueva
-        graduacionIzquierdaNueva
-        fechaExamen
-        INVENTARIOORDENITEMS {
-          nextToken
-          startedAt
-        }
-        ordenStatus
-        precioGraduacion
-        anticipo
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getCLIENTES = /* GraphQL */ `
   query GetCLIENTES($id: ID!) {
     getCLIENTES(id: $id) {
@@ -857,47 +580,6 @@ export const syncCLIENTES = /* GraphQL */ `
       limit: $limit
       nextToken: $nextToken
       lastSync: $lastSync
-    ) {
-      items {
-        id
-        nombres
-        apellidoPaterno
-        apellidoMaterno
-        fechaNacimiento
-        edad
-        whats
-        sexo
-        email
-        opticaID
-        ORDENS {
-          nextToken
-          startedAt
-        }
-        createdAt
-        updatedAt
-        _version
-        _deleted
-        _lastChangedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const cLIENTESByOpticaID = /* GraphQL */ `
-  query CLIENTESByOpticaID(
-    $opticaID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelCLIENTESFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    cLIENTESByOpticaID(
-      opticaID: $opticaID
-      sortDirection: $sortDirection
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
     ) {
       items {
         id
@@ -1127,6 +809,324 @@ export const syncOPTICAS = /* GraphQL */ `
           startedAt
         }
         INVENTARIOS {
+          nextToken
+          startedAt
+        }
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const iNVENTARIOORDENITEMSByInventarioID = /* GraphQL */ `
+  query INVENTARIOORDENITEMSByInventarioID(
+    $inventarioID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelINVENTARIOORDENITEMSFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    iNVENTARIOORDENITEMSByInventarioID(
+      inventarioID: $inventarioID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        cantidad
+        costo
+        inventarioID
+        ordenID
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const iNVENTARIOORDENITEMSByOrdenID = /* GraphQL */ `
+  query INVENTARIOORDENITEMSByOrdenID(
+    $ordenID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelINVENTARIOORDENITEMSFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    iNVENTARIOORDENITEMSByOrdenID(
+      ordenID: $ordenID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        cantidad
+        costo
+        inventarioID
+        ordenID
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const gERENTESByOpticaID = /* GraphQL */ `
+  query GERENTESByOpticaID(
+    $opticaID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelGERENTEFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    gERENTESByOpticaID(
+      opticaID: $opticaID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        nombres
+        userName
+        email
+        phoneNumber
+        confirmed
+        blocked
+        createdBy
+        opticaID
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const vENDEDORESByOpticaID = /* GraphQL */ `
+  query VENDEDORESByOpticaID(
+    $opticaID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelVENDEDORESFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    vENDEDORESByOpticaID(
+      opticaID: $opticaID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        nombres
+        apellidoPaterno
+        apellidoMaterno
+        whats
+        email
+        opticaID
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const iNVENTARIOSByOpticaID = /* GraphQL */ `
+  query INVENTARIOSByOpticaID(
+    $opticaID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelINVENTARIOFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    iNVENTARIOSByOpticaID(
+      opticaID: $opticaID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        nombreProducto
+        proveedor
+        costo
+        precioVenta
+        color
+        tipoEstructura
+        urlImagen
+        tipoMaterial
+        categoria
+        INVENTARIOORDENITEMS {
+          nextToken
+          startedAt
+        }
+        opticaID
+        stock
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const oRDENSByOpticaID = /* GraphQL */ `
+  query ORDENSByOpticaID(
+    $opticaID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelORDENFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    oRDENSByOpticaID(
+      opticaID: $opticaID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        opticaID
+        tipoOrden
+        clientesID
+        usadoLentes
+        fechaOrden
+        horaOrden
+        precioTotal
+        referencia
+        fechaEntrega
+        seRealizoExamen
+        graduacionDerechaVieja
+        graduacionIzquierdaVieja
+        graduacionDerechaNueva
+        graduacionIzquierdaNueva
+        fechaExamen
+        INVENTARIOORDENITEMS {
+          nextToken
+          startedAt
+        }
+        ordenStatus
+        precioGraduacion
+        anticipo
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const oRDENSByClientesID = /* GraphQL */ `
+  query ORDENSByClientesID(
+    $clientesID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelORDENFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    oRDENSByClientesID(
+      clientesID: $clientesID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        opticaID
+        tipoOrden
+        clientesID
+        usadoLentes
+        fechaOrden
+        horaOrden
+        precioTotal
+        referencia
+        fechaEntrega
+        seRealizoExamen
+        graduacionDerechaVieja
+        graduacionIzquierdaVieja
+        graduacionDerechaNueva
+        graduacionIzquierdaNueva
+        fechaExamen
+        INVENTARIOORDENITEMS {
+          nextToken
+          startedAt
+        }
+        ordenStatus
+        precioGraduacion
+        anticipo
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const cLIENTESByOpticaID = /* GraphQL */ `
+  query CLIENTESByOpticaID(
+    $opticaID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelCLIENTESFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    cLIENTESByOpticaID(
+      opticaID: $opticaID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        nombres
+        apellidoPaterno
+        apellidoMaterno
+        fechaNacimiento
+        edad
+        whats
+        sexo
+        email
+        opticaID
+        ORDENS {
           nextToken
           startedAt
         }

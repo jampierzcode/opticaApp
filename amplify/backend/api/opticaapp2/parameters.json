@@ -2,10 +2,5 @@
   "AppSyncApiName": "opticaapp2",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
-  "AuthCognitoUserPoolId": {
-    "Fn::GetAtt": [
-      "authopticafilmoraapi",
-      "Outputs.UserPoolId"
-    ]
-  }
+  "AuthModeLastUpdated": "2023-05-29T12:02:03.589Z"
 }

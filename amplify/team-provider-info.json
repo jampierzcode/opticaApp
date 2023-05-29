@@ -9,16 +9,26 @@
       "UnauthRoleName": "amplify-opticaapp2-main-13409-unauthRole",
       "StackName": "amplify-opticaapp2-main-13409",
       "StackId": "arn:aws:cloudformation:us-east-1:177714169949:stack/amplify-opticaapp2-main-13409/e8fbaef0-fdc0-11ed-88dc-0e2716371563",
-      "AmplifyAppId": "dssfwu2fjc1f2"
+      "AmplifyAppId": "dssfwu2fjc1f2",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-opticaapp2-main-13409-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
-        "opticafilmoraapi": {}
+        "opticafilmoraapi": {},
+        "userPoolGroups": {}
       },
       "function": {
         "opticafilmoraapiPostConfirmation": {
-          "GROUP": ""
+          "GROUP": "",
+          "deploymentBucketName": "amplify-opticaapp2-main-13409-deployment",
+          "s3Key": "amplify-builds/opticafilmoraapiPostConfirmation-4a65645a5a676335384c-build.zip"
         }
+      },
+      "api": {
+        "opticaapp2": {}
+      },
+      "storage": {
+        "imagesoptica": {}
       }
     }
   }
