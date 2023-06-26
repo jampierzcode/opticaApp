@@ -8,6 +8,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
+import dayjs from "dayjs";
 const styles = StyleSheet.create({
   page: {
     display: "flex",
@@ -24,6 +25,13 @@ const styles = StyleSheet.create({
     fontSize: "8px",
     fontWeight: "bold",
     marginBottom: "10px",
+  },
+  info: {
+    fontSize: "8px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    textAlign: "start",
+    width: "100%",
   },
   customer: {
     marginBottom: "10px",
@@ -48,6 +56,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: "8px",
   },
+  tableRowInfo: {
+    display: "flex",
+    flexDirection: "row",
+    padding: "5px",
+    textAlign: "start",
+    fontSize: "8px",
+  },
   tableCell: {
     width: "100%",
     display: "flex",
@@ -66,26 +81,83 @@ const styles = StyleSheet.create({
 });
 
 export default function Cotizacion({
-  // tipoOrden,
   logoSrc,
   title,
   customer,
   products,
   precioGraduacion,
-  // total,
+  optica,
+  ordenID,
 }) {
-  var total = 0;
-  const sumarPrecioGraduacion = () => {
-    total = total + Number(precioGraduacion);
+  var productsGrad;
+  var productsVenta;
+  var nombreGraduacion;
+  var totalgrad;
+  var total;
+  var fecha = dayjs().format("DD-MM-YYYY");
+
+  const loadingTicket = () => {
+    // if (loading !== true) {
+    productsVenta = products.filter(
+      (elemento) => elemento.idGraduation === false
+    );
+    productsGrad = products.filter(
+      (elemento) => elemento.idGraduation === true
+    );
+    sumarPrecioGraduacion();
+
+    // }
   };
+  const sumarPrecioGraduacion = () => {
+    // if (loading !== true) {
+    let totaln = 0;
+    let nombre = "Graduacion -";
+    for (const product of productsGrad) {
+      totaln = totaln + Number(product.costo);
+      nombre += `${product.nombreProducto}-`;
+    }
+    nombreGraduacion = nombre;
+    totaln = totaln + Number(precioGraduacion);
+    totalgrad = totaln;
+    for (const product of productsVenta) {
+      totaln = totaln + Number(product.costo);
+    }
+
+    total = totaln;
+    // }
+  };
+  loadingTicket();
   return (
     <Document>
-      <Page size={[209.76, 300]} style={styles.page}>
+      <Page size={[209.76, 600]} style={styles.page}>
         <View style={styles.logo}>
           <Image src={logoSrc} alt="Logo" />
         </View>
         <View style={styles.title}>
-          <Text>{title}</Text>
+          <Text>Ticket de Cotización</Text>
+        </View>
+        <View style={styles.table}>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>Dirección: {optica.direction}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>Fecha de emisión: {fecha}</Text>
+            </View>
+            <View style={styles.tableCell}>
+              <Text>Cp: {optica.cp}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>RFC: {optica.rfc}</Text>
+            </View>
+            <View style={styles.tableCell}>
+              <Text>Teléfono: {optica.contactPhone}</Text>
+            </View>
+          </View>
         </View>
         <View style={styles.customer}>
           <Text>Cliente: {customer}</Text>
@@ -105,37 +177,28 @@ export default function Cotizacion({
               <Text>Subtotal</Text>
             </View>
           </View>
-          {Number(precioGraduacion) !== 0 && sumarPrecioGraduacion()}
 
           {Number(precioGraduacion) !== 0 ? (
             <View style={styles.tableRow} key={-1}>
               <View style={styles.tableCell}>
-                <Text>Graduacion de lentes</Text>
+                <Text>{nombreGraduacion}</Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>1</Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  $
-                  {Math.round((Number(precioGraduacion) * 100) / 100).toFixed(
-                    2
-                  )}
+                  ${Math.round((Number(totalgrad) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  $
-                  {Math.round((Number(precioGraduacion) * 100) / 100).toFixed(
-                    2
-                  )}
+                  ${Math.round((Number(totalgrad) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
             </View>
           ) : null}
-          {products.map((product, index) => {
-            total = total + product.costo;
-            console.log();
+          {productsVenta.map((product, index) => {
             return (
               <View style={styles.tableRow} key={index}>
                 <View style={styles.tableCell}>
@@ -191,6 +254,7 @@ export default function Cotizacion({
             <Text>Total</Text>
             <Text>${(Math.round(total * 100) / 100).toFixed(2)}</Text>
           </View>
+
           <View
             style={{
               display: "flex",
@@ -199,11 +263,11 @@ export default function Cotizacion({
             }}
           >
             {/* <Text style={{ textAlign: "justify" }}>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum
-              reiciendis, provident officia architecto ut consequatur nobis
-              alias a velit maxime debitis praesentium inventore consequuntur
-              est laborum ex nostrum fugiat. Commodi.
-            </Text> */}
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum
+            reiciendis, provident officia architecto ut consequatur nobis
+            alias a velit maxime debitis praesentium inventore consequuntur
+            est laborum ex nostrum fugiat. Commodi.
+          </Text> */}
           </View>
         </View>
       </Page>

@@ -25,6 +25,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: "10px",
   },
+  info: {
+    fontSize: "8px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    textAlign: "start",
+    width: "100%",
+  },
   customer: {
     marginBottom: "10px",
     fontSize: "8px",
@@ -46,6 +53,13 @@ const styles = StyleSheet.create({
     padding: "5px",
     borderBottom: "1px solid black",
     textAlign: "center",
+    fontSize: "8px",
+  },
+  tableRowInfo: {
+    display: "flex",
+    flexDirection: "row",
+    padding: "5px",
+    textAlign: "start",
     fontSize: "8px",
   },
   tableCell: {
@@ -72,20 +86,71 @@ export default function TicketPDF({
   customer,
   products,
   precioGraduacion,
+  optica,
+  ordenID,
+  montoPagado,
   // total,
 }) {
+  var documento = optica.DOCUMENTOS.items.filter(
+    (documento) => documento.ordenID === ordenID
+  );
+  var fecha = documento[0].createdAt.split("T");
+  console.log(documento);
+  var productsVenta = products.filter(
+    (elemento) => elemento.idGraduation === false
+  );
+  console.log(productsVenta);
+  console.log(products);
+  var productsGrad = products.filter(
+    (elemento) => elemento.idGraduation === true
+  );
   var total = 0;
+  var nombreGraduacion = "Graduacion -";
   const sumarPrecioGraduacion = () => {
+    for (const product of productsGrad) {
+      total = total + Number(product.costo);
+      nombreGraduacion += `${product.nombreProducto}-`;
+      console.log(nombreGraduacion);
+    }
     total = total + Number(precioGraduacion);
   };
+  if ((!logoSrc, !customer, !products, !precioGraduacion, !optica, !ordenID)) {
+    return <p>Cargando...</p>;
+  }
   return (
     <Document>
-      <Page size={[209.76, 300]} style={styles.page}>
+      <Page size={[209.76, 600]} style={styles.page}>
         <View style={styles.logo}>
           <Image src={logoSrc} alt="Logo" />
         </View>
         <View style={styles.title}>
-          <Text>{title}</Text>
+          <Text>{documento[0].tipoDocumento}</Text>
+          <Text>
+            {documento[0].serie}-{documento[0].numeroSecuencial}
+          </Text>
+        </View>
+        <View style={styles.table}>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>Dirección: {optica.direction}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>Fecha de emisión: {fecha[0]}</Text>
+            </View>
+            <View style={styles.tableCell}>
+              <Text>Cp: {optica.cp}</Text>
+            </View>
+          </View>
+          <View style={styles.tableRowInfo}>
+            <View style={styles.tableCell}>
+              <Text>RFC: {optica.rfc}</Text>
+            </View>
+            <View style={styles.tableCell}>
+              <Text>Teléfono: {optica.contactPhone}</Text>
+            </View>
+          </View>
         </View>
         <View style={styles.customer}>
           <Text>Cliente: {customer}</Text>
@@ -110,32 +175,26 @@ export default function TicketPDF({
           {Number(precioGraduacion) !== 0 ? (
             <View style={styles.tableRow} key={-1}>
               <View style={styles.tableCell}>
-                <Text>Graduacion de lentes</Text>
+                <Text>{nombreGraduacion}</Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>1</Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  $
-                  {Math.round((Number(precioGraduacion) * 100) / 100).toFixed(
-                    2
-                  )}
+                  ${Math.round((Number(total) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  $
-                  {Math.round((Number(precioGraduacion) * 100) / 100).toFixed(
-                    2
-                  )}
+                  ${Math.round((Number(total) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
             </View>
           ) : null}
-          {products.map((product, index) => {
+          {productsVenta.map((product, index) => {
             total = total + product.costo;
-            console.log();
+            console.log(productsVenta);
             return (
               <View style={styles.tableRow} key={index}>
                 <View style={styles.tableCell}>
@@ -191,6 +250,33 @@ export default function TicketPDF({
             <Text>Total</Text>
             <Text>${(Math.round(total * 100) / 100).toFixed(2)}</Text>
           </View>
+          {Number(total) !== Number(montoPagado) ? (
+            <>
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                }}
+              >
+                <Text>Pagado</Text>
+                <Text>${(Math.round(montoPagado * 100) / 100).toFixed(2)}</Text>
+              </View>
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                }}
+              >
+                <Text>Adeudo</Text>
+                <Text>
+                  ${(Math.round((total - montoPagado) * 100) / 100).toFixed(2)}
+                </Text>
+              </View>
+            </>
+          ) : null}
+
           <View
             style={{
               display: "flex",

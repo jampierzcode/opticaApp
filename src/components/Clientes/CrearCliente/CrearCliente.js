@@ -6,9 +6,14 @@ import { MenuContext } from "../../../contexts/MenuContext";
 import { createCLIENTES } from "../../../graphql/mutations";
 import { listOPTICAS } from "../../../graphql/queries";
 
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { useGerenteContext } from "../../../contexts/GerenteContext";
+import LaboratorioSelector from "../../RoleBased/LaboratorioSelector";
+import GROUPS from "../../../constants/groups";
 const { Option } = Select;
 
 function CrearCliente() {
+  const { groupName } = useAuthContext();
   const { cambiarComponent } = useContext(MenuContext);
 
   const [opticas, setOpticas] = useState([]);
@@ -22,14 +27,24 @@ function CrearCliente() {
   const [email, setEmail] = useState("");
   const [opticaID, setOpticaID] = useState("");
 
-  const fetchOpticas = async () => {
-    const result = await API.graphql(graphqlOperation(listOPTICAS));
-    const listOpticas = result?.data?.listOPTICAS?.items;
-    setOpticas(listOpticas);
-  };
+  // optica id
+  const { labId } = useGerenteContext();
+
   useEffect(() => {
-    fetchOpticas();
-  }, []);
+    const searchOpticas = async () => {
+      if (groupName !== GROUPS.SUPER_ADMIN) {
+        setOpticaID(labId);
+      } else {
+        try {
+          const result = await API.graphql(graphqlOperation(listOPTICAS));
+          setOpticas(result.data.listOPTICAS.items);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+    searchOpticas();
+  }, [groupName, labId]);
 
   const onFinish = async () => {
     console.log({
@@ -126,31 +141,20 @@ function CrearCliente() {
               <Option value="MASCULINO">MASCULINO</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="optica"
-            label="Optica"
-            rules={[{ required: true, message: "Este campo es requerido" }]}
-          >
-            <Select
-              //   defaultValue={categoria}
-              onSelect={(e) => setOpticaID(e)}
-              placeholder="Select una Optica"
-            >
-              {opticas.map((optica) => {
-                return (
-                  <Option key={optica.id} value={optica.id}>
-                    {optica.nombre}
-                  </Option>
-                );
-              })}
-            </Select>
-          </Form.Item>
+          {opticas.length > 0 && (
+            <LaboratorioSelector
+              groupName={groupName}
+              setOpticaID={setOpticaID}
+              opticas={opticas}
+            />
+          )}
           <Form.Item
             label="Fecha de nacimiento"
             name="fechaNacimiento"
             // rules={[{ required: true, message: "Este campo es requerido" }]}
           >
             <DatePicker
+              style={{ width: "100%" }}
               onChange={(date, dateString) => setFechaNacimiento(dateString)}
             />
           </Form.Item>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -8,11 +8,14 @@ import {
   Tag,
   Modal,
   message,
-  Image,
+  // Image,
   Popconfirm,
+  Button,
+  Space,
 } from "antd";
 // amplify API
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { FaFilePdf } from "react-icons/fa";
 import { API, DataStore, graphqlOperation } from "aws-amplify";
 // import { useNavigate } from "react-router-dom";
 import { OPTICA } from "../../../models";
@@ -25,10 +28,15 @@ import { useGerenteContext } from "../../../contexts/GerenteContext";
 import { deleteINVENTARIO, updateINVENTARIO } from "../../../graphql/mutations";
 import LaboratorioSelector from "../../RoleBased/LaboratorioSelector";
 import { useAuthContext } from "../../../contexts/AuthContext";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import TicketInventario from "./TicketInventario";
 
 const { Content } = Layout;
 const { Option } = Select;
 function ListaInventario() {
+  // carga de pdf
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const { groupName } = useAuthContext();
   // use state de form modal
   const [categoria, setCategoria] = useState("");
@@ -45,8 +53,18 @@ function ListaInventario() {
   const [inventario, setInventario] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [opticaID, setOpticaID] = useState("");
+  const [isaument, setIsaument] = useState(false);
+  const [isRestar, setIsRestar] = useState(false);
+  const [stock, setStock] = useState("");
+  const [newStock, setNewStock] = useState("");
+
+  const [dataSource, setDataSource] = useState([]);
   // const [filtercategorias, setFiltercategorias] = useState([]);
   const [opticas, setOpticas] = useState([]);
+
+  // filtros de busqueda
+  const [searchStatus, setSearchStatus] = useState(undefined);
+  const [searchArmazon, setSearchArmazon] = useState("");
 
   // optica id select session for context
   const { labId } = useGerenteContext();
@@ -61,7 +79,121 @@ function ListaInventario() {
     }
     return items;
   };
+  // const fetchImage = async (img) => {
+  //   try {
+  //     const credentials = Auth.currentCredentials();
+  //     const url = await Storage.get(img, { level: "public", ...credentials });
+  //     console.log(url);
+  //     return url;
+  //   } catch (error) {
+  //     console.error("Error al obtener la imagen:", error);
+  //   }
+  // };
+  console.log(dataSource.length);
+
+  const aumentProduct = (record) => {
+    setId(record?.id);
+    setVersion(record?._version);
+    setStock(record?.stock);
+    setIsaument(true);
+  };
+  const restarProduct = (record) => {
+    setId(record?.id);
+    setVersion(record?._version);
+    setStock(record?.stock);
+    setIsRestar(true);
+  };
+  const onAddProduct = async () => {
+    try {
+      const newInventario = {
+        id: id,
+        _version: version,
+        stock: (Number(newStock) + Number(stock)).toString(),
+      };
+      await API.graphql(
+        graphqlOperation(updateINVENTARIO, { input: newInventario })
+      );
+      setIsaument(false);
+      setNewStock("");
+      message.success("Se agrego mas stock al producto");
+      fetchInventario();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const onRestarProduct = async () => {
+    try {
+      if (stock >= newStock) {
+        const newInventario = {
+          id: id,
+          _version: version,
+          stock: (Number(stock) - Number(newStock)).toString(),
+        };
+        await API.graphql(
+          graphqlOperation(updateINVENTARIO, { input: newInventario })
+        );
+        setIsaument(false);
+        setNewStock("");
+        message.success("Se agrego mas stock al producto");
+        fetchInventario();
+      } else {
+        message.error(
+          "La cantidad de stock max que se puede dar de baje es " + stock
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const columns = [
+    // {
+    //   title: "Imagen",
+    //   dataIndex: "urlImagen",
+    //   key: "urlImagen",
+    //   onCell: async (record) => ({
+    //     children: await fetchImage(record.urlImagen),
+    //   }),
+    //   render: (text) => {
+    //     if (text === "") {
+    //       return (
+    //         <div
+    //           style={{
+    //             width: "60px",
+    //             height: "60px",
+    //             borderRadius: "50%",
+    //             objectFit: "contain",
+    //             objectPosition: "center",
+    //             overflow: "hidden",
+    //             display: "flex",
+    //             alignItems: "center",
+    //             justifyContent: "center",
+    //             background: "#5b5b5b",
+    //             color: "#fff",
+    //           }}
+    //           alt="imagen prueba"
+    //         >
+    //           Sin Img
+    //         </div>
+    //       );
+    //     } else {
+    //       return (
+    //         <Image
+    //           style={{
+    //             width: "80px",
+    //             height: "80px",
+    //             borderRadius: "50%",
+    //             objectFit: "contain",
+    //             objectPosition: "center",
+    //             overflow: "hidden",
+    //           }}
+    //           src={text}
+    //           alt="imagen prueba"
+    //         />
+    //       );
+    //     }
+    //   },
+    // },
     {
       title: "Nombre",
       dataIndex: "nombreProducto",
@@ -103,11 +235,17 @@ function ListaInventario() {
       title: "Costo",
       dataIndex: "costo",
       key: "costo",
+      render: (text) => {
+        return <p> ${(Math.round(text * 100) / 100).toFixed(2)}</p>;
+      },
     },
     {
       title: "Precio Venta",
       dataIndex: "precioVenta",
       key: "precioVenta",
+      render: (text) => {
+        return <p> ${(Math.round(text * 100) / 100).toFixed(2)}</p>;
+      },
     },
     {
       title: "Color",
@@ -120,28 +258,23 @@ function ListaInventario() {
       key: "tipoEstructura",
     },
     {
-      title: "Imagen",
-      dataIndex: "urlImagen",
-      key: "urlImagen",
-      render: (urlImagen) => {
-        // const extension = imagen.split("/");
-        // const key = "images/" + extension[extension.length - 1];
-        // console.log(key);
-        // const image1 = await Storage.get(key, { level: "public" });
-        return (
-          <Image
-            style={{
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              objectFit: "contain",
-              objectPosition: "center",
-              overflow: "hidden",
-            }}
-            src={urlImagen}
-            alt="iamgen prueba"
-          />
-        );
+      title: "Stock",
+      dataIndex: "stock",
+      key: "stock",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (_, record) => {
+        let stock = record?.stock;
+        if (stock > 10) {
+          return <Tag color="green">En stock</Tag>;
+        } else if (stock === "0") {
+          return <Tag color="red">Sin existencias</Tag>;
+        } else if (stock > 0 && stock < 11) {
+          return <Tag color="warning">Limitado</Tag>;
+        }
       },
     },
     {
@@ -150,7 +283,9 @@ function ListaInventario() {
       key: "actions",
       render: (_, record) => {
         return (
-          <>
+          <Space display="horizontal">
+            <Button onClick={() => aumentProduct(record)}>+</Button>
+            <Button onClick={() => restarProduct(record)}>-</Button>
             <EditOutlined
               type="link"
               onClick={() => {
@@ -169,7 +304,7 @@ function ListaInventario() {
                 style={{ color: "red", marginLeft: "15px" }}
               />{" "}
             </Popconfirm>
-          </>
+          </Space>
         );
       },
     },
@@ -188,6 +323,7 @@ function ListaInventario() {
 
   const edithandle = (record) => {
     setId(record?.id);
+    setVersion(record?._version);
     setOpticaID(record.opticaID);
     setNombreProducto(record?.nombreProducto);
     setCategoria(record?.categoria);
@@ -206,44 +342,63 @@ function ListaInventario() {
     setVersion(record?._version);
   };
 
-  const fetchInventario = async () => {
-    let productosList;
+  const fetchInventario = useCallback(async () => {
+    let productosList = [];
     if (labId === "") {
       try {
-        const result = await API.graphql(graphqlOperation(listINVENTARIOS));
-        const nodelete = result?.data?.listINVENTARIOS?.items;
-        const deletew = nodelete.filter(
-          (elemento) => elemento._deleted !== true
-        );
-        productosList = deletew;
+        let nextToken = null;
+        do {
+          const result = await API.graphql(
+            graphqlOperation(listINVENTARIOS, { limit: 100, nextToken })
+          );
+          console.log(result);
+          const nodelete = result?.data?.listINVENTARIOS?.items;
+          const deletew = nodelete.filter(
+            (elemento) => elemento._deleted !== true
+          );
+          productosList.push(...deletew);
+          nextToken = result?.data?.listINVENTARIOS?.nextToken;
+        } while (nextToken);
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
-        const result = await API.graphql(
-          graphqlOperation(iNVENTARIOSByOpticaID, { opticaID: labId })
-        );
-        const nodelete = result?.data?.iNVENTARIOSByOpticaID?.items;
-        const deletew = nodelete.filter(
-          (elemento) => elemento._deleted !== true
-        );
-        productosList = deletew;
+        let nextToken = null;
+        do {
+          const result = await API.graphql(
+            graphqlOperation(iNVENTARIOSByOpticaID, {
+              opticaID: labId,
+              limit: 100,
+              nextToken,
+            })
+          );
+          const nodelete = result?.data?.iNVENTARIOSByOpticaID?.items;
+          const deletew = nodelete.filter(
+            (elemento) => elemento._deleted !== true
+          );
+          productosList.push(...deletew);
+          nextToken = result?.data?.iNVENTARIOSByOpticaID?.nextToken;
+        } while (nextToken);
       } catch (error) {
         console.log(error);
       }
     }
-    const ordenProducts = productosList.sort((a, b) => {
-      // Ordenar por fecha de creación descendente (más reciente primero)
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-    setInventario(ordenProducts);
-  };
+    console.log(productosList);
+    // const ordenProducts = productosList.sort((a, b) => {
+    //   // Ordenar por fecha de creación descendente (más reciente primero)
+    //   return new Date(b.createdAt) - new Date(a.createdAt);
+    // });
 
+    productosList.sort((a, b) => a.tipoMaterial.localeCompare(b.tipoMaterial));
+
+    setDataSource(productosList);
+    setInventario(productosList);
+  }, [labId]);
   useEffect(() => {
     fetchInventario();
     // eslint-disable-next-line
-  }, [labId]);
+  }, []);
 
   const deletehandle = async () => {
     console.log(id);
@@ -262,8 +417,22 @@ function ListaInventario() {
   };
 
   const onFinish = async () => {
+    console.log({
+      id,
+      categoria,
+      proveedor,
+      costo,
+      precioVenta,
+      nombreProducto,
+      color,
+      tipoEstructura,
+      urlImagen,
+      tipoMaterial,
+      opticaID,
+    });
     try {
       const prod = {
+        id,
         categoria,
         proveedor,
         costo,
@@ -274,24 +443,132 @@ function ListaInventario() {
         urlImagen,
         tipoMaterial,
         opticaID,
+        _version: version,
       };
       await API.graphql(graphqlOperation(updateINVENTARIO, { input: prod }));
       fetchInventario();
       setIsEditing(false);
       message.success("El producto se ha actualizado correctamente");
     } catch (error) {
+      console.log(error);
       message.error("Hubo un error contacta al administrador");
     }
+  };
+
+  useEffect(() => {
+    searchFilters(searchStatus, searchArmazon);
+    // eslint-disable-next-line
+  }, [searchStatus, searchArmazon]);
+
+  const handleStatusChange = (value) => {
+    setSearchStatus(value);
+  };
+
+  const handleNombreChange = (e) => {
+    setSearchArmazon(e.target.value);
+  };
+
+  const searchFilters = (status, armazon) => {
+    if (searchStatus !== undefined || searchArmazon !== "") {
+      const filteredProductos = inventario.filter((producto) => {
+        const searchStatusString = String(status);
+        console.log(producto);
+
+        const statusFilter =
+          status === undefined ||
+          (searchStatusString === "2" && Number(producto.stock) === 0) ||
+          (searchStatusString === "1" &&
+            Number(producto.stock) > 0 &&
+            Number(producto.stock) < 11) ||
+          (searchStatusString === "0" && Number(producto.stock) >= 10);
+
+        const armazonFilter =
+          !armazon ||
+          producto.tipoEstructura.toLowerCase().includes(armazon.toLowerCase());
+
+        return statusFilter && armazonFilter;
+      });
+      setDataSource(filteredProductos);
+    } else {
+      setDataSource(inventario);
+    }
+  };
+  const resetFilters = () => {
+    setSearchArmazon("");
+    setSearchStatus(undefined);
   };
 
   return (
     <Content>
       <div>
         <h1>NUESTROS PRODUCTOS</h1>
+        <div style={{ margin: "20px 0px" }}>
+          <p>Filtrado avanzado</p>
+        </div>
+        <Form
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(5, 1fr)",
+            gap: "15px",
+          }}
+        >
+          <Form.Item>
+            <Select
+              value={searchStatus}
+              onSelect={(e) => {
+                handleStatusChange(e);
+              }}
+              onClear={(e) => {
+                handleStatusChange(e);
+              }}
+              allowClear
+              placeholder="Filtrar por Status"
+            >
+              <Option value="0">EN STOCK</Option>
+              <Option value="1">LIMITADO</Option>
+              <Option value="2">SIN EXISTENCIAS</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Input
+              value={searchArmazon}
+              onChange={(e) => {
+                handleNombreChange(e);
+              }}
+              placeholder="Buscar codigo de armazon"
+            />
+          </Form.Item>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Button onClick={resetFilters} title="reset">
+              Resetear
+            </Button>
+            {dataSource.length > 0 && (
+              <PDFDownloadLink
+                document={<TicketInventario data={dataSource} />}
+                fileName="inventario.pdf"
+              >
+                {({ load }) => (
+                  <Button
+                    onClick={() => setIsGenerating(load)}
+                    disabled={load || isGenerating}
+                  >
+                    {load || isGenerating ? (
+                      "Generando PDF..."
+                    ) : (
+                      <>
+                        <FaFilePdf /> Descargar reporte
+                      </>
+                    )}
+                  </Button>
+                )}
+              </PDFDownloadLink>
+            )}
+          </div>
+        </Form>
         <Table
           scroll={{ x: 400 }}
           rowKey={(record) => record.id}
-          dataSource={inventario}
+          dataSource={dataSource}
           columns={columns}
           rowClassName="editable-row"
           // onRow={(lentes) => ({
@@ -439,6 +716,38 @@ function ListaInventario() {
               </Form.Item>
             </div>
           </Form>
+        </Modal>
+        <Modal
+          onCancel={() => setIsaument(false)}
+          // onOk={() => setIsEditing(false)}
+          title="Aumentar productos"
+          open={isaument}
+          onOk={() => onAddProduct()}
+        >
+          <p>Stock Actual: {stock}</p>
+          <Form.Item label="Agregar stock">
+            <Input
+              placeholder="Ingresa la cantidad de stock a agregar al actual"
+              value={newStock}
+              onChange={(e) => setNewStock(e.target.value)}
+            />
+          </Form.Item>
+        </Modal>
+        <Modal
+          onCancel={() => setIsRestar(false)}
+          // onOk={() => setIsEditing(false)}
+          title="Dar de baja a producto"
+          open={isRestar}
+          onOk={() => onRestarProduct()}
+        >
+          <p>Stock Actual: {stock}</p>
+          <Form.Item label="Agregar stock">
+            <Input
+              placeholder="Ingresa la cantidad de stock a agregar al actual"
+              value={newStock}
+              onChange={(e) => setNewStock(e.target.value)}
+            />
+          </Form.Item>
         </Modal>
         {/* ) : null} */}
       </div>

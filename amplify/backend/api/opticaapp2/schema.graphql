@@ -1,3 +1,88 @@
+type GASTOS @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  montoGasto: Float
+  descripcion: String
+  turnoID: ID! @index(name: "byTurno")
+  fecha: String
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+type DOCUMENTOS @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  tipoDocumento: TIPODOCUMENTO
+  serie: String
+  numeroSecuencial: Int
+  ordenID: ID! @index(name: "byORDEN")
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+enum TIPODOCUMENTO {
+  TICKET
+  NOTADEVENTA
+  FACTURA
+}
+
+type CONFIGURACIONDOCUMENTO @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  tipoDocumento: TIPODOCUMENTO
+  serieActual: String
+  numeroSecuencialActual: Int
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+enum TIPOTRANSACCION {
+  VENTA
+  COBRO
+}
+
+type Transacciones @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  monto: String
+  metodoPago: METODOPAGO
+  turnoID: ID! @index(name: "byTurno")
+  ordenID: ID! @index(name: "byORDEN")
+  tipoTransaccion: TIPOTRANSACCION
+  fecha: String
+}
+
+enum METODOPAGO {
+  TARJETA_CREDITO
+  TRANSFERENCIA
+  EFECTIVO
+}
+
+type Deudas @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  fecha: String
+  montoDeuda: Float
+  estado: String
+  turnoID: ID! @index(name: "byTurno")
+  ordenID: ID! @index(name: "byORDEN")
+  opticaID: ID! @index(name: "byOPTICA")
+}
+
+type Turno @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  montoInicial: Float!
+  fechaApertura: String!
+  montoCierre: Float
+  fechaCierre: String
+  cajaID: ID! @index(name: "byCaja")
+  ORDENS: [ORDEN] @hasMany(indexName: "byTurno", fields: ["id"])
+  Deudas: [Deudas] @hasMany(indexName: "byTurno", fields: ["id"])
+  usuario: ID
+  estado: String
+  Transacciones: [Transacciones] @hasMany(indexName: "byTurno", fields: ["id"])
+  GASTOS: [GASTOS] @hasMany(indexName: "byTurno", fields: ["id"])
+}
+
+type Caja @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  nombre: String!
+  opticaID: ID! @index(name: "byOPTICA")
+  Turnos: [Turno] @hasMany(indexName: "byCaja", fields: ["id"])
+}
+
 enum ORDENSTATUS {
   CREADA
   ENVIADAMAQUILA
@@ -12,6 +97,7 @@ type INVENTARIOORDENITEMS @model @auth(rules: [{ allow: public }]) {
   costo: Float
   inventarioID: ID! @index(name: "byINVENTARIO")
   ordenID: ID! @index(name: "byORDEN")
+  idGraduation: Boolean
 }
 
 enum TIPOORDEN {
@@ -72,7 +158,7 @@ type ORDEN @model @auth(rules: [{ allow: public }]) {
   usadoLentes: String
   fechaOrden: String
   horaOrden: String
-  precioTotal: String
+  fechaExamen: String
   referencia: String
   fechaEntrega: String
   seRealizoExamen: String
@@ -80,12 +166,17 @@ type ORDEN @model @auth(rules: [{ allow: public }]) {
   graduacionIzquierdaVieja: String
   graduacionDerechaNueva: String
   graduacionIzquierdaNueva: String
-  fechaExamen: String
+  ordenStatus: ORDENSTATUS
   INVENTARIOORDENITEMS: [INVENTARIOORDENITEMS]
     @hasMany(indexName: "byORDEN", fields: ["id"])
-  ordenStatus: ORDENSTATUS
-  precioGraduacion: String
-  anticipo: String
+  precioTotal: Float
+  montoPagado: Float
+  anticipo: Float
+  precioGraduacion: Float
+  turnoID: ID! @index(name: "byTurno")
+  Deudas: [Deudas] @hasMany(indexName: "byORDEN", fields: ["id"])
+  Transacciones: [Transacciones] @hasMany(indexName: "byORDEN", fields: ["id"])
+  DOCUMENTOS: [DOCUMENTOS] @hasMany(indexName: "byORDEN", fields: ["id"])
 }
 
 type CLIENTES @model @auth(rules: [{ allow: public }]) {
@@ -111,4 +202,15 @@ type OPTICA @model @auth(rules: [{ allow: public }]) {
   ORDENS: [ORDEN] @hasMany(indexName: "byOPTICA", fields: ["id"])
   CLIENTES: [CLIENTES] @hasMany(indexName: "byOPTICA", fields: ["id"])
   INVENTARIOS: [INVENTARIO] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  Cajas: [Caja] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  CONFIGURACIONDOCUMENTOS: [CONFIGURACIONDOCUMENTO]
+    @hasMany(indexName: "byOPTICA", fields: ["id"])
+  DOCUMENTOS: [DOCUMENTOS] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  direction: String
+  cp: String
+  rfc: String
+  contactPhone: String
+  codSerial: String
+  Deudas: [Deudas] @hasMany(indexName: "byOPTICA", fields: ["id"])
+  GASTOS: [GASTOS] @hasMany(indexName: "byOPTICA", fields: ["id"])
 }

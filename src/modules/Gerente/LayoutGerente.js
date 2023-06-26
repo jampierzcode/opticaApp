@@ -16,6 +16,7 @@ function LayoutGerente({ user, signOut }) {
   const [collapsed, setCollapsed] = useState(false);
   const [current, setCurrent] = useState("");
   const [labId, setLabId] = useState("");
+  const [gerenteId, setGerenteId] = useState("");
 
   const toggle = () => {
     setCollapsed(!collapsed);
@@ -27,12 +28,13 @@ function LayoutGerente({ user, signOut }) {
     const getLabid = async () => {
       const result = await API.graphql(
         graphqlOperation(listGERENTES, {
-          filter: { userName: { eq: user.userName } },
+          filter: { userName: { eq: user.username } },
         })
       );
       const original = result?.data?.listGERENTES?.items[0];
       if (original?.opticaID) {
         setLabId(original?.opticaID);
+        setGerenteId(original?.id);
       } else {
         message.error("No existe optica asignada para este usuario");
         signOut();
@@ -77,7 +79,7 @@ function LayoutGerente({ user, signOut }) {
           signOut={signOut}
         />
         <MenuContext.Provider value={{ current, cambiarComponent }}>
-          <GerenteContext.Provider value={{ labId }}>
+          <GerenteContext.Provider value={{ labId, gerenteId }}>
             <ContentLayoutGerente current={current} />
           </GerenteContext.Provider>
         </MenuContext.Provider>

@@ -1,14 +1,24 @@
 import "./Cart.css";
-import { Button, DatePicker, Form, Input, Select, Table, message } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Table,
+  message,
+  Tag,
+  Checkbox,
+} from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { MenuContext } from "../../../contexts/MenuContext";
 import { useAuthContext } from "../../../contexts/AuthContext";
-import dayjs from "dayjs";
 import { React, useState, useEffect, useContext } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import {
   createINVENTARIOORDENITEMS,
   createORDEN,
+  // updateINVENTARIO,
 } from "../../../graphql/mutations";
 import LaboratorioSelector from "../../RoleBased/LaboratorioSelector";
 import { useGerenteContext } from "../../../contexts/GerenteContext";
@@ -21,10 +31,18 @@ import {
   listINVENTARIOS,
   listOPTICAS,
 } from "../../../graphql/queries";
+import { CajaContext } from "../../../contexts/CajaContext";
 
 const { Option } = Select;
 
 function CrearOrden() {
+  // verificar cajas uststate
+  const { cajaAbierta, nowTurno, verificarCajaAbierta } =
+    useContext(CajaContext);
+
+  const [verificandoCaja, setVerificandoCaja] = useState(true);
+  // const [modalVisible, setModalVisible] = useState(false);
+
   const { groupName } = useAuthContext();
   const { cambiarComponent } = useContext(MenuContext);
   const [clientes, setClientes] = useState([]);
@@ -42,7 +60,7 @@ function CrearOrden() {
   const [referencia, setReferencia] = useState("");
   // const [seRealizoExamen, setSeRealizoExamen] = useState("");
   const [fechaExamen, setFechaExamen] = useState("");
-  const [fechaEntrega, setFechaEntrega] = useState("");
+  const fechaEntrega = "";
 
   // ordenes state carts
   const [carrito, setCarrito] = useState([]);
@@ -54,44 +72,73 @@ function CrearOrden() {
   const [precioGraduacion, setPrecioGraduacion] = useState(0);
 
   // optica id
-  const { labId } = useGerenteContext();
+  const { labId, gerenteId } = useGerenteContext();
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
         const options = [];
-        let productosList;
+        let productosList = [];
         if (labId === "") {
-          const result = await API.graphql(graphqlOperation(listINVENTARIOS));
-          const nodelete = result?.data?.listINVENTARIOS?.items;
-          const deletew = nodelete.filter(
-            (elemento) => elemento._deleted !== true
-          );
-          const tempProducts = [];
-          // productosList = deletew;
-          for (const producto of deletew) {
-            const resultOptica = await API.graphql(
-              graphqlOperation(getOPTICA, { id: producto.opticaID })
-            );
-            const optica = resultOptica.data.getOPTICA;
-            const productOptica = { ...producto, nombreOptica: optica.nombre };
-            tempProducts.push(productOptica);
+          try {
+            let nextToken = null;
+            do {
+              const result = await API.graphql(
+                graphqlOperation(listINVENTARIOS, { limit: 100, nextToken })
+              );
+              console.log(result);
+              const nodelete = result?.data?.listINVENTARIOS?.items;
+              const deletew = nodelete.filter(
+                (elemento) => elemento._deleted !== true
+              );
+              let tempProducts = [];
+              for (const producto of deletew) {
+                const resultOptica = await API.graphql(
+                  graphqlOperation(getOPTICA, { id: producto.opticaID })
+                );
+                const optica = resultOptica.data.getOPTICA;
+                const productOptica = {
+                  ...producto,
+                  nombreOptica: optica.nombre,
+                };
+                tempProducts.push(productOptica);
+              }
+              productosList.push(...tempProducts);
+              nextToken = result?.data?.listINVENTARIOS?.nextToken;
+            } while (nextToken);
+          } catch (error) {
+            console.log(error);
           }
-          productosList = tempProducts;
         } else {
-          const result = await API.graphql(
-            graphqlOperation(iNVENTARIOSByOpticaID, { opticaID: labId })
-          );
-          const nodelete = result?.data?.iNVENTARIOSByOpticaID?.items;
-          const deletew = nodelete.filter(
-            (elemento) => elemento._deleted !== true
-          );
-          productosList = deletew;
+          try {
+            let nextToken = null;
+            do {
+              const result = await API.graphql(
+                graphqlOperation(iNVENTARIOSByOpticaID, {
+                  opticaID: labId,
+                  limit: 100,
+                  nextToken,
+                })
+              );
+              const nodelete = result?.data?.iNVENTARIOSByOpticaID?.items;
+              const deletew = nodelete.filter(
+                (elemento) => elemento._deleted !== true
+              );
+              productosList.push(...deletew);
+              nextToken = result?.data?.iNVENTARIOSByOpticaID?.nextToken;
+            } while (nextToken);
+          } catch (error) {
+            console.log(error);
+          }
         }
 
         productosList.map((producto) => {
           const nombreOptica =
             producto?.nombreOptica !== undefined ? producto?.nombreOptica : "";
+          const stock =
+            producto.stock === "0"
+              ? "sin existencias"
+              : producto.stock + " und";
           const option = {
             value: producto.id,
             label:
@@ -101,7 +148,10 @@ function CrearOrden() {
               ", " +
               producto.tipoEstructura +
               ", " +
-              nombreOptica,
+              nombreOptica +
+              stock,
+            stock: Number(producto.stock),
+            disabled: Number(producto.stock) === 0,
           };
           options.push(option);
           return true;
@@ -109,7 +159,7 @@ function CrearOrden() {
         setProductos(options);
         setListaProductos(productosList);
       } catch (error) {
-        message.error("No se encontraron clientes");
+        message.error("No se encontraron produtos");
       }
     };
     fetchProductos();
@@ -205,7 +255,10 @@ function CrearOrden() {
           nombre: result.nombreProducto,
           cantidad: cantidad,
           precio: result.precioVenta,
+          stock: result.stock,
+          version: result._version,
           subTotal: Number(result.precioVenta) * Number(cantidad),
+          idGraduation: false,
         };
         setCarrito([...carrito, carritoInterno]);
         setTotal(total + carritoInterno.subTotal);
@@ -213,65 +266,85 @@ function CrearOrden() {
       setProductoID(null);
     }
   };
-
   const onOrden = async () => {
+    let checkOrden = 1;
     if (carrito.length > 0) {
       if (clientesID !== "" && opticaID !== "") {
-        const fecha = dayjs().format("YYYY-MM-DD");
-
-        // Obtener la hora actual en el formato deseado: 09:57:05
-        const hora = dayjs().format("HH:mm:ss");
-        const newOrden = {
-          tipoOrden: "COTIZACION",
-          clientesID,
-          opticaID,
-          seRealizoExamen: "SI",
-          fechaEntrega,
-          usadoLentes: "-",
-          referencia,
-          graduacionDerechaVieja,
-          graduacionIzquierdaVieja,
-          graduacionDerechaNueva,
-          graduacionIzquierdaNueva,
-          fechaExamen,
-          ordenStatus: "CREADA",
-          fechaOrden: fecha,
-          horaOrden: hora,
-          precioGraduacion: precioGraduacion.toString(),
-          precioTotal: (total + Number(precioGraduacion)).toString(),
-          anticipo: "0",
-        };
-        const result = await API.graphql(
-          graphqlOperation(createORDEN, { input: newOrden })
-        );
-        const orden = result.data.createORDEN;
-        await Promise.all(
-          carrito.map(async (cart) => {
-            let newOrdenItem = {
-              cantidad: cart.cantidad,
-              ordenID: orden.id,
-              inventarioID: cart.id,
-              costo: cart.subTotal,
-            };
-            await API.graphql(
-              graphqlOperation(createINVENTARIOORDENITEMS, {
-                input: newOrdenItem,
-              })
+        if (graduacion === "SI") {
+          if (Number(precioGraduacion) !== 0) {
+            let count = 0;
+            for (const cart of carrito) {
+              if (cart.idGraduation === true) {
+                count = count + 1;
+              }
+            }
+            if (count > 0) {
+              checkOrden = 1;
+            } else {
+              checkOrden = 0;
+              message.warning(
+                "Tienes que seleccionar por lo menos un producto que pertenecerá a la graduación"
+              );
+            }
+          } else {
+            checkOrden = 0;
+            message.warning(
+              "Estas creando una graducación, tienes que agregar el Precio de AR-MAQUILA"
             );
-          })
-        );
-        setCarrito([]);
-        cambiarComponent({ key: "21" });
-        message.success("La orden se ha registrado correctamente");
+          }
+        }
+        if (checkOrden === 1) {
+          const newOrden = {
+            tipoOrden: "COTIZACION",
+            clientesID,
+            opticaID,
+            seRealizoExamen: graduacionDerechaVieja ? "SI" : "NO",
+            fechaEntrega,
+            usadoLentes: "-",
+            referencia,
+            graduacionDerechaVieja,
+            graduacionIzquierdaVieja,
+            graduacionDerechaNueva,
+            graduacionIzquierdaNueva,
+            fechaExamen,
+            ordenStatus: "CREADA",
+            fechaOrden: "",
+            horaOrden: "",
+            precioGraduacion: precioGraduacion,
+            precioTotal: total + Number(precioGraduacion),
+            anticipo: 0,
+            turnoID: nowTurno.id,
+          };
+          const result = await API.graphql(
+            graphqlOperation(createORDEN, { input: newOrden })
+          );
+          const orden = result.data.createORDEN;
+          await Promise.all(
+            carrito.map(async (cart) => {
+              let newOrdenItem = {
+                cantidad: cart.cantidad,
+                ordenID: orden.id,
+                inventarioID: cart.id,
+                costo: cart.subTotal,
+                idGraduation: cart.idGraduation,
+              };
+              await API.graphql(
+                graphqlOperation(createINVENTARIOORDENITEMS, {
+                  input: newOrdenItem,
+                })
+              );
+            })
+          );
+          setCarrito([]);
+          cambiarComponent({ key: "21" });
+          message.success("La orden se ha registrado correctamente");
+          console.log(carrito);
+        }
       } else {
         message.warning("Te faltan llenar campos");
       }
     } else {
       message.info("Te faltan agregar productos");
-    }
-    try {
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -281,8 +354,14 @@ function CrearOrden() {
         if (objeto.cantidad > 1) {
           const newCantidad = objeto.cantidad - cantidad;
           const newSubtotal = newCantidad * objeto.precio;
+          const newStock = Number(objeto.stock) + 1;
           setTotal(total - cantidad * objeto.precio);
-          return { ...objeto, cantidad: newCantidad, subTotal: newSubtotal };
+          return {
+            ...objeto,
+            cantidad: newCantidad,
+            subTotal: newSubtotal,
+            stock: newStock,
+          };
         }
       }
       return objeto;
@@ -292,10 +371,18 @@ function CrearOrden() {
   const aumentCarrito = (record) => {
     const nuevosObjetos = carrito.map((objeto) => {
       if (objeto.id === record.id) {
-        const newCantidad = objeto.cantidad + cantidad;
-        const newSubtotal = newCantidad * objeto.precio;
-        setTotal(total + cantidad * objeto.precio);
-        return { ...objeto, cantidad: newCantidad, subTotal: newSubtotal };
+        if (objeto.stock - 1 > 0) {
+          const newCantidad = objeto.cantidad + cantidad;
+          const newSubtotal = newCantidad * objeto.precio;
+          setTotal(total + cantidad * objeto.precio);
+          const newStock = Number(objeto.stock) - 1;
+          return {
+            ...objeto,
+            cantidad: newCantidad,
+            subTotal: newSubtotal,
+            stock: newStock,
+          };
+        }
       }
       return objeto;
     });
@@ -311,6 +398,24 @@ function CrearOrden() {
 
   // Table source
   const columns = [
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (_, record) => {
+        let stock = Number(record?.stock);
+        if (stock - 1 > 0) {
+          return (
+            <>
+              <Tag color="green">En stock</Tag>
+              <p>{Number(record?.stock) - 1} und</p>
+            </>
+          );
+        } else {
+          return <Tag color="red">Sin existencia</Tag>;
+        }
+      },
+    },
     {
       title: "Producto",
       dataIndex: "nombre",
@@ -378,16 +483,58 @@ function CrearOrden() {
       key: "acciones",
       render: (_, record) => {
         return (
-          <>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <Button onClick={() => deleteRowCart(record)} type="primary" danger>
               <DeleteOutlined />
             </Button>
-          </>
+            {graduacion === "SI" ? (
+              <Checkbox
+                checked={record.idGraduation}
+                // disabled={disabled}
+                onChange={(e) => selectGradProdut(record, e.target.checked)}
+              >
+                Graduacion
+              </Checkbox>
+            ) : null}
+          </div>
         );
       },
     },
   ];
-  return (
+  const selectGradProdut = (record, value) => {
+    console.log(record);
+    console.log(value);
+    const nuevosObjetos = carrito.map((objeto) => {
+      if (objeto.id === record.id) {
+        const newIdGraduation = value;
+        return {
+          ...objeto,
+          idGraduation: newIdGraduation,
+        };
+      }
+      return objeto;
+    });
+    console.log(nuevosObjetos);
+    setCarrito(nuevosObjetos);
+
+    // setCheckGradProduct(!checkGradProduct);
+  };
+  useEffect(() => {
+    const verificarCaja = async () => {
+      // Realizar la verificación del estado de la caja aquí
+      // Reemplaza el siguiente código con tu lógica de verificación real
+      await verificarCajaAbierta(gerenteId); // Supongamos que esto es una función asincrónica
+
+      setVerificandoCaja(false); // Finaliza la verificación
+    };
+
+    verificarCaja();
+    // eslint-disable-next-line
+  }, []);
+
+  return verificandoCaja ? (
+    <p>Verificando cajas abiertas</p>
+  ) : cajaAbierta ? (
     <div
       style={{
         padding: "20px 30px",
@@ -399,6 +546,17 @@ function CrearOrden() {
       <Form.Item style={{ marginTop: "20px" }} label="Graduacion?">
         <Select
           onSelect={(e) => {
+            if (e === "NO") {
+              if (carrito.length > 0) {
+                let nuevosObjetos = carrito.map((objeto) => {
+                  return {
+                    ...objeto,
+                    idGraduation: false,
+                  };
+                });
+                setCarrito(nuevosObjetos);
+              }
+            }
             setGraduacion(e);
           }}
           placeholder="Seleccione que tipo de orden desea registrar"
@@ -410,8 +568,8 @@ function CrearOrden() {
       {graduacion === "SI" ? (
         <Form layout="vertical">
           <>
-            <h1>Graduacion de lentes</h1>
-            <Form.Item label="Tiene graducacion de lentes?">
+            <h1>Graduación de lentes</h1>
+            <Form.Item label="Tiene graduación de lentes?">
               <Select
                 onSelect={(e) => setGradCheck(e)}
                 allowClear
@@ -428,7 +586,7 @@ function CrearOrden() {
                 style={{ width: "100%", display: "flex", gap: "8px" }}
               >
                 <Form.Item
-                  label="Graducacion Derecha Vieja"
+                  label="Graduación Derecha Vieja"
                   style={{ width: "100%" }}
                 >
                   <Input
@@ -437,7 +595,7 @@ function CrearOrden() {
                   />
                 </Form.Item>
                 <Form.Item
-                  label="Graducacion Izquierda Vieja"
+                  label="Graduación Izquierda Vieja"
                   style={{ width: "100%" }}
                 >
                   <Input
@@ -454,7 +612,7 @@ function CrearOrden() {
               style={{ width: "100%", display: "flex", gap: "8px" }}
             >
               <Form.Item
-                label="Graducacion Derecha Nueva"
+                label="Graduación Derecha Nueva"
                 style={{ width: "100%" }}
               >
                 <Input
@@ -463,7 +621,7 @@ function CrearOrden() {
                 />
               </Form.Item>
               <Form.Item
-                label="Graducacion Izquierda Nueva"
+                label="Graduación Izquierda Nueva"
                 style={{ width: "100%" }}
               >
                 <Input
@@ -484,25 +642,19 @@ function CrearOrden() {
                   style={{ width: "100%" }}
                   format="YYYY-MM-DD"
                   onChange={(date, dateString) => setFechaExamen(dateString)}
+                  placeholder="Fecha"
                 />
               </Form.Item>
 
-              <Form.Item label="Referencia">
+              <Form.Item label="Recomendado por">
                 <Input
                   onChange={(e) => setReferencia(e.target.value)}
                   value={referencia}
-                  placeholder="Reeferencia"
+                  placeholder="ej: Dr Shurick"
                 />
               </Form.Item>
 
-              <Form.Item label="Fecha de entrega">
-                <DatePicker
-                  style={{ width: "100%" }}
-                  format="YYYY-MM-DD"
-                  onChange={(date, dateString) => setFechaEntrega(dateString)}
-                />
-              </Form.Item>
-              <Form.Item label="Precio de graduacion">
+              <Form.Item label="Precio AR-MAQUILA">
                 <Input
                   value={precioGraduacion}
                   onChange={(e) => setPrecioGraduacion(e.target.value)}
@@ -525,6 +677,8 @@ function CrearOrden() {
             filterOption={(input, option) =>
               (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
             }
+            // options={productos.filter((producto) => producto.stock > 0)} // Filtrar productos con existencias
+            optionLabelProp="label"
             options={productos}
           />
           <Table
@@ -592,7 +746,7 @@ function CrearOrden() {
         >
           <Form.Item>
             <p>
-              <b>Informacion Basica</b>
+              <b>Información Básica</b>
             </p>
             <Select
               showSearch
@@ -627,6 +781,26 @@ function CrearOrden() {
           </div>
         </div>
       </div>
+    </div>
+  ) : (
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "400px",
+        gap: "15px",
+      }}
+    >
+      <h1>Debes primero abrir una caja, para empezar a vender</h1>
+      <Button
+        onClick={() => cambiarComponent({ key: "8" })}
+        className="primary"
+      >
+        Abrir una caja
+      </Button>
     </div>
   );
 }

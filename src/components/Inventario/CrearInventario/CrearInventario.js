@@ -34,6 +34,7 @@ function CrearInventario() {
   const [costo, setCosto] = useState(0);
   const [precioVenta, setPrecioVenta] = useState(0);
   const [color, setColor] = useState("");
+  const [stock, setStock] = useState(0);
   const [tipoEstructura, setTipoEstructura] = useState("");
   const [urlImagen, setUrlImagen] = useState("");
   const [tipoMaterial, setTipoMaterial] = useState("");
@@ -58,6 +59,39 @@ function CrearInventario() {
     };
     searchOpticas();
   }, [groupName, labId]);
+  // const dataExcel = 0
+  // const subirExcel = async () => {
+  //   try {
+  //     var count = 0;
+  //     for (const pro of dataExcel) {
+  //       count = count + 1;
+  //       const newProducto = {
+  //         opticaID: pro.opticaID,
+  //         categoria: pro.categoria,
+  //         nombreProducto: pro.nombreProducto,
+  //         proveedor: pro.proveedor,
+  //         costo: pro.costo,
+  //         precioVenta: pro.precioVenta,
+  //         color: pro.color,
+  //         tipoEstructura: pro.tipoEstructura,
+  //         urlImagen: pro.urlImagen,
+  //         tipoMaterial: pro.tipoMaterial,
+  //         stock: pro.stock.toString(),
+  //       };
+  //       const result = await API.graphql(
+  //         graphqlOperation(createINVENTARIO, { input: newProducto })
+  //       );
+  //       console.log(result);
+  //     }
+  //     message.success(
+  //       "Los productos se subieron correctamente correctamente total: " + count
+  //     );
+  //     cambiarComponent({ key: "11" });
+  //   } catch (error) {
+  //     console.log(error);
+  //     message.error("Hubo un error contacta al administrador");
+  //   }
+  // };
 
   const onFinish = async () => {
     try {
@@ -72,6 +106,7 @@ function CrearInventario() {
         tipoEstructura,
         urlImagen,
         tipoMaterial,
+        stock: stock.toString(),
       };
       const result = await API.graphql(
         graphqlOperation(createINVENTARIO, { input: newProducto })
@@ -123,7 +158,7 @@ function CrearInventario() {
           style={{
             display: "grid",
             gap: "8px",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(4, 1fr)",
           }}
         >
           <Form.Item
@@ -205,6 +240,24 @@ function CrearInventario() {
             />
           </Form.Item>
           <Form.Item
+            label="Stock"
+            name="stock"
+            rules={[{ required: true, message: "Este campo es requerido" }]}
+          >
+            <Input
+              placeholder="Ingresa la cantidad a agregar"
+              value={stock}
+              onChange={(e) => {
+                if (e.target.value === "") {
+                  setStock(0);
+                } else {
+                  setStock(Number(e.target.value));
+                }
+              }}
+              style={{ width: "100%" }}
+            />
+          </Form.Item>
+          <Form.Item
             label="Color"
             name="color"
             // rules={[{ required: true, message: "Este campo es requerido" }]}
@@ -216,7 +269,7 @@ function CrearInventario() {
             />
           </Form.Item>
           <Form.Item
-            label="Cod Armazon"
+            label="Cod Producto"
             name="tipoEstructura"
             // rules={[{ required: true, message: "Este campo es requerido" }]}
           >
@@ -261,6 +314,12 @@ function CrearInventario() {
           </Button>
         </div>
       </Form>
+      {/* cuando se requiera subir de forma manual */}
+      {/* <div style={{ marginTop: 10 }}>
+        <Button title="Save" onClick={() => subirExcel()} type="primary">
+          Subir excel
+        </Button>
+      </div> */}
     </div>
   );
 }

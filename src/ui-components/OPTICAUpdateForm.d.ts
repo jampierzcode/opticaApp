@@ -16,16 +16,31 @@ export declare type ValidationFunction<T> = (value: T, validationResponse: Valid
 export declare type OPTICAUpdateFormInputValues = {
     nombre?: string;
     createdBy?: string;
+    direction?: string;
+    cp?: string;
+    rfc?: string;
+    contactPhone?: string;
+    codSerial?: string;
 };
 export declare type OPTICAUpdateFormValidationValues = {
     nombre?: ValidationFunction<string>;
     createdBy?: ValidationFunction<string>;
+    direction?: ValidationFunction<string>;
+    cp?: ValidationFunction<string>;
+    rfc?: ValidationFunction<string>;
+    contactPhone?: ValidationFunction<string>;
+    codSerial?: ValidationFunction<string>;
 };
 export declare type PrimitiveOverrideProps<T> = Partial<T> & React.DOMAttributes<HTMLDivElement>;
 export declare type OPTICAUpdateFormOverridesProps = {
     OPTICAUpdateFormGrid?: PrimitiveOverrideProps<GridProps>;
     nombre?: PrimitiveOverrideProps<TextFieldProps>;
     createdBy?: PrimitiveOverrideProps<TextFieldProps>;
+    direction?: PrimitiveOverrideProps<TextFieldProps>;
+    cp?: PrimitiveOverrideProps<TextFieldProps>;
+    rfc?: PrimitiveOverrideProps<TextFieldProps>;
+    contactPhone?: PrimitiveOverrideProps<TextFieldProps>;
+    codSerial?: PrimitiveOverrideProps<TextFieldProps>;
 } & EscapeHatchProps;
 export declare type OPTICAUpdateFormProps = React.PropsWithChildren<{
     overrides?: OPTICAUpdateFormOverridesProps | undefined | null;

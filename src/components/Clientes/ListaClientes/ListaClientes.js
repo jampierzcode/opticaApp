@@ -170,8 +170,8 @@ function ListaClientes() {
               }}
             />
             <Popconfirm
-              title="Eliminar Lente"
-              description="¿Esta seguro de eliminar el lente?"
+              title="Eliminar Cliente"
+              description="¿Esta seguro de eliminar el cliente?"
               onConfirm={() => deletehandle()}
               okText="Si"
               cancelText="No"
