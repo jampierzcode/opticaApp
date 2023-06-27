@@ -11,6 +11,7 @@ const { Header } = Layout;
 
 function HeaderLayoutSuperAdmin({ collapsed, toggle, signOut }) {
   const authContext = useAuthContext();
+  console.log(authContext);
   const items = [
     {
       label: authContext?.authEmail,
