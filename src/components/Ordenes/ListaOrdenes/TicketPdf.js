@@ -91,32 +91,71 @@ export default function TicketPDF({
   montoPagado,
   // total,
 }) {
+  var productsGrad;
+  var productsVenta;
+  var nombreGraduacion;
+  var totalgrad;
+  var total;
+
+  const loadingTicket = () => {
+    // if (loading !== true) {
+    productsVenta = products.filter(
+      (elemento) => elemento.idGraduation === false
+    );
+    console.log(productsVenta);
+    productsGrad = products.filter(
+      (elemento) => elemento.idGraduation === true
+    );
+    sumarPrecioGraduacion();
+
+    // }
+  };
+  const sumarPrecioGraduacion = () => {
+    // if (loading !== true) {
+    let totaln = 0;
+    let nombre = "Graduacion -";
+    for (const product of productsGrad) {
+      totaln = totaln + Number(product.costo);
+      nombre += `${product.nombreProducto}-`;
+    }
+    nombreGraduacion = nombre;
+    totaln = totaln + Number(precioGraduacion);
+    totalgrad = totaln;
+    for (const product of productsVenta) {
+      totaln = totaln + Number(product.costo);
+    }
+
+    total = totaln;
+    // }
+  };
+  loadingTicket();
+
   var documento = optica.DOCUMENTOS.items.filter(
     (documento) => documento.ordenID === ordenID
   );
   var fecha = documento[0].createdAt.split("T");
-  console.log(documento);
-  var productsVenta = products.filter(
-    (elemento) => elemento.idGraduation === false
-  );
-  console.log(productsVenta);
-  console.log(products);
-  var productsGrad = products.filter(
-    (elemento) => elemento.idGraduation === true
-  );
-  var total = 0;
-  var nombreGraduacion = "Graduacion -";
-  const sumarPrecioGraduacion = () => {
-    for (const product of productsGrad) {
-      total = total + Number(product.costo);
-      nombreGraduacion += `${product.nombreProducto}-`;
-      console.log(nombreGraduacion);
-    }
-    total = total + Number(precioGraduacion);
-  };
-  if ((!logoSrc, !customer, !products, !precioGraduacion, !optica, !ordenID)) {
-    return <p>Cargando...</p>;
-  }
+  // console.log(documento);
+  // var productsVenta = products.filter(
+  //   (elemento) => elemento.idGraduation === false
+  // );
+  // console.log(productsVenta);
+  // console.log(products);
+  // var productsGrad = products.filter(
+  //   (elemento) => elemento.idGraduation === true
+  // );
+  // var total = 0;
+  // var nombreGraduacion = "Material -";
+  // const sumarPrecioGraduacion = () => {
+  //   for (const product of productsGrad) {
+  //     total = total + Number(product.costo);
+  //     nombreGraduacion += `${product.nombreProducto}-`;
+  //     console.log(nombreGraduacion);
+  //   }
+  //   total = total + Number(precioGraduacion);
+  // };
+  // if ((!logoSrc, !customer, !products, !precioGraduacion, !optica, !ordenID)) {
+  //   return <p>Cargando...</p>;
+  // }
   return (
     <Document>
       <Page size={[209.76, 600]} style={styles.page}>
@@ -170,7 +209,6 @@ export default function TicketPDF({
               <Text>Subtotal</Text>
             </View>
           </View>
-          {Number(precioGraduacion) !== 0 && sumarPrecioGraduacion()}
 
           {Number(precioGraduacion) !== 0 ? (
             <View style={styles.tableRow} key={-1}>
@@ -182,19 +220,17 @@ export default function TicketPDF({
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  ${Math.round((Number(total) * 100) / 100).toFixed(2)}
+                  ${Math.round((Number(totalgrad) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
               <View style={styles.tableCell}>
                 <Text>
-                  ${Math.round((Number(total) * 100) / 100).toFixed(2)}
+                  ${Math.round((Number(totalgrad) * 100) / 100).toFixed(2)}
                 </Text>
               </View>
             </View>
           ) : null}
           {productsVenta.map((product, index) => {
-            total = total + product.costo;
-            console.log(productsVenta);
             return (
               <View style={styles.tableRow} key={index}>
                 <View style={styles.tableCell}>
@@ -250,32 +286,6 @@ export default function TicketPDF({
             <Text>Total</Text>
             <Text>${(Math.round(total * 100) / 100).toFixed(2)}</Text>
           </View>
-          {Number(total) !== Number(montoPagado) ? (
-            <>
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                }}
-              >
-                <Text>Pagado</Text>
-                <Text>${(Math.round(montoPagado * 100) / 100).toFixed(2)}</Text>
-              </View>
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                }}
-              >
-                <Text>Adeudo</Text>
-                <Text>
-                  ${(Math.round((total - montoPagado) * 100) / 100).toFixed(2)}
-                </Text>
-              </View>
-            </>
-          ) : null}
 
           <View
             style={{
@@ -285,11 +295,11 @@ export default function TicketPDF({
             }}
           >
             {/* <Text style={{ textAlign: "justify" }}>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum
-              reiciendis, provident officia architecto ut consequatur nobis
-              alias a velit maxime debitis praesentium inventore consequuntur
-              est laborum ex nostrum fugiat. Commodi.
-            </Text> */}
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum
+            reiciendis, provident officia architecto ut consequatur nobis
+            alias a velit maxime debitis praesentium inventore consequuntur
+            est laborum ex nostrum fugiat. Commodi.
+          </Text> */}
           </View>
         </View>
       </Page>

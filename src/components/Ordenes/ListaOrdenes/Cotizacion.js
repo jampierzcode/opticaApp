@@ -111,7 +111,7 @@ export default function Cotizacion({
   const sumarPrecioGraduacion = () => {
     // if (loading !== true) {
     let totaln = 0;
-    let nombre = "Graduacion -";
+    let nombre = "Material -";
     for (const product of productsGrad) {
       totaln = totaln + Number(product.costo);
       nombre += `${product.nombreProducto}-`;

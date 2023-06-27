@@ -52,7 +52,7 @@ const CrearCaja = () => {
   const [cajaID, setCajaID] = useState(null);
 
   const [verificandoCaja, setVerificandoCaja] = useState(true);
-  const { cajaAbierta, nowTurno, verificarCajaAbierta } =
+  const { cajaAbierta, nowTurno, setCajaAbierta, verificarCajaAbierta } =
     useContext(CajaContext);
   const [isModal, setIsModal] = useState(true);
 
@@ -115,26 +115,26 @@ const CrearCaja = () => {
       } catch (error) {
         console.log(error);
       }
-    } else {
-      console.log("no entro");
     }
   };
 
   const revisarGastos = async () => {
-    try {
-      const result = await API.graphql(
-        graphqlOperation(gASTOSByTurnoID, { turnoID: nowTurno.id })
-      );
-      const gastos = result?.data?.gASTOSByTurnoID?.items;
-      if (gastos.length > 0) {
-        let montoGasto = 0;
-        for (const gasto of gastos) {
-          montoGasto = montoGasto + gasto.montoGasto;
-          setGastoEfectivo(montoGasto);
+    if (cajaAbierta) {
+      try {
+        const result = await API.graphql(
+          graphqlOperation(gASTOSByTurnoID, { turnoID: nowTurno.id })
+        );
+        const gastos = result?.data?.gASTOSByTurnoID?.items;
+        if (gastos.length > 0) {
+          let montoGasto = 0;
+          for (const gasto of gastos) {
+            montoGasto = montoGasto + gasto.montoGasto;
+            setGastoEfectivo(montoGasto);
+          }
         }
+      } catch (error) {
+        message.error("No se cargaron los gastos de la caja");
       }
-    } catch (error) {
-      message.error("No se cargaron los gastos de la caja");
     }
   };
   useEffect(() => {
@@ -153,7 +153,11 @@ const CrearCaja = () => {
         estado: "Cerrado",
       };
       await API.graphql(graphqlOperation(updateTurno, { input: updateTurnos }));
-      verificarCajaAbierta(gerenteId);
+      setVerificandoCaja(true);
+      setCajaAbierta(false);
+      setMontoInicial(0);
+      verificarCaja();
+
       message.success("Se hizo corte de la caja correctamente");
     } catch (error) {
       console.log(error);
@@ -201,28 +205,26 @@ const CrearCaja = () => {
       message.error("Hubo un error contacta con el administrador");
     }
   };
-  console.log(cajas);
   useEffect(() => {
     fetchCajas();
     // eslint-disable-next-line
   }, [labId]);
-
-  useEffect(() => {
-    const verificarCaja = async () => {
-      // Realizar la verificación del estado de la caja aquí
-      // Reemplaza el siguiente código con tu lógica de verificación real
-      try {
-        const result = await verificarCajaAbierta(gerenteId); // Supongamos que esto es una función asincrónica
-        if (result === true) {
-          setVerificandoCaja(false); // Finaliza la verificación
-        }
-      } catch (error) {
-        console.log(error);
+  const verificarCaja = async () => {
+    // Realizar la verificación del estado de la caja aquí
+    // Reemplaza el siguiente código con tu lógica de verificación real
+    try {
+      const result = await verificarCajaAbierta(gerenteId); // Supongamos que esto es una función asincrónica
+      if (result === false) {
+        setVerificandoCaja(false); // Finaliza la verificación
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
     verificarCaja();
     // eslint-disable-next-line
-  }, []);
+  }, [gerenteId]);
   return (
     <div>
       {verificandoCaja ? (

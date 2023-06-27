@@ -17,17 +17,12 @@ import {
 import { INVENTARIOORDENITEMS, ORDEN } from "../../../models";
 import TicketPDF from "./TicketPdf";
 import Cotizacion from "./Cotizacion";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { PDFViewer } from "@react-pdf/renderer";
 
 import logo from "../../../assets/logohilmora.png";
 
 import { useGerenteContext } from "../../../contexts/GerenteContext";
-import {
-  DeleteOutlined,
-  EyeOutlined,
-  SearchOutlined,
-  CloudDownloadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {
   deudasByOrdenID,
@@ -1015,6 +1010,7 @@ function ListaOrdenes() {
                       ordenID: ordenID,
                       inventarioID: cart.id,
                       costo: cart.subTotal,
+                      idGraduation: false,
                     };
                     await API.graphql(
                       graphqlOperation(createINVENTARIOORDENITEMS, {
@@ -1165,6 +1161,7 @@ function ListaOrdenes() {
                     ordenID: ordenID,
                     inventarioID: cart.id,
                     costo: cart.subTotal,
+                    idGraduation: false,
                   };
                   await API.graphql(
                     graphqlOperation(createINVENTARIOORDENITEMS, {
@@ -1329,17 +1326,17 @@ function ListaOrdenes() {
     setSearchEntrega("");
   };
   // funcion de imprimir
-  const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Imprimir</title></head><body>"
-    );
-    printWindow.document.write('<div id="print-content">');
-    printWindow.document.write(document.getElementById("pdf-viewer").innerHTML);
-    printWindow.document.write("</div></body></html>");
-    printWindow.document.close();
-    printWindow.print();
-  };
+  // const handlePrint = () => {
+  //   const printWindow = window.open("", "_blank");
+  //   printWindow.document.write(
+  //     "<html><head><title>Imprimir</title></head><body>"
+  //   );
+  //   printWindow.document.write('<div id="print-content">');
+  //   printWindow.document.write(document.getElementById("pdf-viewer").innerHTML);
+  //   printWindow.document.write("</div></body></html>");
+  //   printWindow.document.close();
+  //   printWindow.print();
+  // };
 
   useEffect(() => {
     const verificarCaja = async () => {

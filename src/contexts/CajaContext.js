@@ -35,14 +35,15 @@ const CajaProvider = ({ children }) => {
           _version: turnosAbiertos[0]._version,
         };
         setNowTurno(newTurno);
+        return true;
       } else {
         // Si no hay turnos abiertos por el usuario, redirige al usuario para que seleccione un turno
         // Aquí puedes mostrar una lista de los turnos registrados y permitir al usuario seleccionar uno
         // Luego, actualizas el estado con el turno seleccionado
         // setTurnoSeleccionado(ID_TURNO_SELECCIONADO);
         message.warning("No has abierto ningún turno");
+        return false;
       }
-      return true;
     } catch (error) {
       // Manejo de errores
       console.error(error);
